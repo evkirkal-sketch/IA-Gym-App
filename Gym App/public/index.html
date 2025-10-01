@@ -1,0 +1,3087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitPro - Personal Training App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Exercise Animations */
+        @keyframes pushup {
+            0%, 100% { transform: translateY(0px) scaleY(1); }
+            50% { transform: translateY(-8px) scaleY(0.9); }
+        }
+        
+        @keyframes squat {
+            0%, 100% { transform: translateY(0px) scaleY(1); }
+            50% { transform: translateY(12px) scaleY(0.7); }
+        }
+        
+        @keyframes bicepCurl {
+            0%, 100% { transform: rotate(0deg) translateY(0px); }
+            50% { transform: rotate(-30deg) translateY(-5px); }
+        }
+        
+        @keyframes plank {
+            0%, 100% { transform: scaleX(1) translateY(0px); }
+            25% { transform: scaleX(1.05) translateY(-2px); }
+            75% { transform: scaleX(0.95) translateY(2px); }
+        }
+        
+        @keyframes deadlift {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scaleY(1); }
+            50% { transform: translateY(8px) rotate(3deg) scaleY(0.9); }
+        }
+        
+        @keyframes shoulderPress {
+            0%, 100% { transform: translateY(0px) scaleX(1); }
+            50% { transform: translateY(-12px) scaleX(1.1); }
+        }
+        
+        @keyframes pullup {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes lunge {
+            0%, 100% { transform: translateX(0px) scaleX(1); }
+            50% { transform: translateX(5px) scaleX(0.9); }
+        }
+        
+        @keyframes lateralRaise {
+            0%, 100% { transform: rotate(0deg) scaleX(1); }
+            50% { transform: rotate(15deg) scaleX(1.2); }
+        }
+        
+        /* Muscle Group Animations */
+        @keyframes muscleGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+        
+        .muscle-animation {
+            animation: muscleGlow 3s ease-in-out infinite;
+        }
+        
+        .exercise-animation {
+            animation-duration: 2.5s;
+            animation-iteration-count: infinite;
+            animation-timing-function: ease-in-out;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .pushup-anim { animation-name: pushup; }
+        .squat-anim { animation-name: squat; }
+        .bicep-anim { animation-name: bicepCurl; }
+        .plank-anim { animation-name: plank; }
+        .deadlift-anim { animation-name: deadlift; }
+        .shoulder-anim { animation-name: shoulderPress; }
+        .pullup-anim { animation-name: pullup; }
+        .lunge-anim { animation-name: lunge; }
+        .lateral-anim { animation-name: lateralRaise; }
+        
+        .exercise-icon {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .logo-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Dark mode styles */
+        .dark {
+            color-scheme: dark;
+        }
+        
+        .dark body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+        }
+        
+        /* Background colors */
+        .dark .bg-white {
+            background-color: #1f2937 !important;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #111827 !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #374151 !important;
+        }
+        
+        .dark .bg-gray-200 {
+            background-color: #4b5563 !important;
+        }
+        
+        .dark .bg-blue-50 {
+            background-color: #1e3a8a !important;
+        }
+        
+        .dark .bg-green-50 {
+            background-color: #14532d !important;
+        }
+        
+        .dark .bg-yellow-50 {
+            background-color: #451a03 !important;
+        }
+        
+        .dark .bg-purple-50 {
+            background-color: #581c87 !important;
+        }
+        
+        .dark .bg-red-50 {
+            background-color: #7f1d1d !important;
+        }
+        
+        .dark .bg-orange-50 {
+            background-color: #7c2d12 !important;
+        }
+        
+        /* Text colors */
+        .dark .text-gray-800 {
+            color: #f9fafb !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #d1d5db !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        
+        .dark .text-gray-500 {
+            color: #6b7280 !important;
+        }
+        
+        .dark .text-gray-400 {
+            color: #9ca3af !important;
+        }
+        
+        .dark .text-black {
+            color: #f9fafb !important;
+        }
+        
+        /* Border colors */
+        .dark .border-gray-300 {
+            border-color: #4b5563 !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #374151 !important;
+        }
+        
+        .dark .border-l-4 {
+            border-left-color: inherit !important;
+        }
+        
+        /* Shadows */
+        .dark .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .dark .shadow-xl {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .dark .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        /* Gradients for dark mode */
+        .dark .bg-gradient-to-br {
+            background: linear-gradient(to bottom right, #374151, #1f2937) !important;
+        }
+        
+        .dark .bg-gradient-to-r {
+            background: linear-gradient(to right, #374151, #1f2937) !important;
+        }
+        
+        /* Specific component overrides */
+        .dark .bg-blue-100 {
+            background-color: #1e3a8a !important;
+        }
+        
+        .dark .bg-green-100 {
+            background-color: #14532d !important;
+        }
+        
+        .dark .bg-yellow-100 {
+            background-color: #451a03 !important;
+        }
+        
+        .dark .bg-purple-100 {
+            background-color: #581c87 !important;
+        }
+        
+        .dark .bg-red-100 {
+            background-color: #7f1d1d !important;
+        }
+        
+        .dark .bg-orange-100 {
+            background-color: #7c2d12 !important;
+        }
+        
+        /* Hover states */
+        .dark .hover\:bg-gray-100:hover {
+            background-color: #374151 !important;
+        }
+        
+        .dark .hover\:bg-blue-100:hover {
+            background-color: #1e40af !important;
+        }
+        
+        .dark .hover\:bg-green-100:hover {
+            background-color: #166534 !important;
+        }
+        
+        .dark .hover\:bg-purple-100:hover {
+            background-color: #6b21a8 !important;
+        }
+        
+        /* Opacity backgrounds */
+        .dark .bg-white.bg-opacity-50 {
+            background-color: rgba(31, 41, 55, 0.8) !important;
+        }
+
+        /* Like animation */
+        @keyframes likeAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .like-animation {
+            animation: likeAnimation 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header with Logo -->
+    <header class="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
+                    <svg viewBox="0 0 24 24" class="w-8 h-8 text-white" fill="currentColor">
+                        <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+                        <circle cx="9" cy="9" r="2"/>
+                        <circle cx="15" cy="15" r="2"/>
+                        <rect x="6" y="11" width="6" height="2" rx="1"/>
+                        <rect x="12" y="11" width="6" height="2" rx="1"/>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold logo-gradient">FitPro</h1>
+                <span class="ml-2 text-gray-600 text-sm">Personal Training App</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login Page -->
+    <div id="loginPage" class="min-h-screen relative overflow-hidden">
+        <!-- Animated Exercise Background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400">
+            <!-- Exercise Silhouettes -->
+            <div class="absolute inset-0 opacity-20">
+                <div class="grid grid-cols-6 gap-8 p-6 h-full">
+                    <!-- Exercise Silhouettes -->
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation pushup-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation squat-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation bicep-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation plank-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation deadlift-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation shoulder-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation pullup-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation lunge-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation lateral-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation pushup-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation squat-anim"></div>
+                    <div class="w-16 h-16 bg-gray-600 rounded-full exercise-animation bicep-anim"></div>
+                </div>
+            </div>
+            
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 py-12 pt-32 relative z-10">
+            <div class="max-w-md mx-auto bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl p-8 border border-white/20">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome to FitPro</h2>
+                <p class="text-gray-600">Your personal fitness journey starts here</p>
+                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mt-4 text-sm">
+                    <strong>Demo Version:</strong> Data won't persist between sessions
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex border-b">
+                    <button id="loginTab" class="flex-1 py-2 px-4 text-center font-medium text-blue-600 border-b-2 border-blue-600">Login</button>
+                    <button id="signupTab" class="flex-1 py-2 px-4 text-center font-medium text-gray-500">Sign Up</button>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Login</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="space-y-4 hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="signupPassword" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <div class="text-xs text-gray-500 mt-1">6-12 characters, 1 uppercase, 1 number, 1 special character</div>
+                    <div id="passwordValidation" class="mt-2 text-xs space-y-1"></div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Create Account</button>
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Muscle Group Selection Page (First-time setup) -->
+    <div id="muscleGroupPage" class="container mx-auto px-6 py-12 pt-32 hidden">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Choose Your Focus Areas</h2>
+            <p class="text-gray-600 text-center mb-8">Select the muscle groups you want to focus on in your workouts (2-6 groups)</p>
+            
+            <form id="muscleGroupForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-4">Focus Muscle Groups (Select 2-6)</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <!-- Chest -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Chest</h4>
+                                <button type="button" onclick="selectAllMuscles('chest')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="chest_upper" class="mr-2 chest-muscle">
+                                    <span>Upper Chest</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="chest_middle" class="mr-2 chest-muscle">
+                                    <span>Middle Chest</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="chest_lower" class="mr-2 chest-muscle">
+                                    <span>Lower Chest</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Back -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Back</h4>
+                                <button type="button" onclick="selectAllMuscles('back')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="back_lats" class="mr-2 back-muscle">
+                                    <span>Lats</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="back_rhomboids" class="mr-2 back-muscle">
+                                    <span>Rhomboids</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="back_traps" class="mr-2 back-muscle">
+                                    <span>Traps</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="back_lower" class="mr-2 back-muscle">
+                                    <span>Lower Back</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Shoulders -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Shoulders</h4>
+                                <button type="button" onclick="selectAllMuscles('shoulders')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="shoulders_anterior" class="mr-2 shoulders-muscle">
+                                    <span>Anterior Delt</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="shoulders_medial" class="mr-2 shoulders-muscle">
+                                    <span>Medial Delt</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="shoulders_posterior" class="mr-2 shoulders-muscle">
+                                    <span>Posterior Delt</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Arms -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Arms</h4>
+                                <button type="button" onclick="selectAllMuscles('arms')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="biceps_long" class="mr-2 arms-muscle">
+                                    <span>Biceps Long Head</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="biceps_short" class="mr-2 arms-muscle">
+                                    <span>Biceps Short Head</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="triceps_long" class="mr-2 arms-muscle">
+                                    <span>Triceps Long Head</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="triceps_lateral" class="mr-2 arms-muscle">
+                                    <span>Triceps Lateral</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="triceps_medial" class="mr-2 arms-muscle">
+                                    <span>Triceps Medial</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Legs -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Legs</h4>
+                                <button type="button" onclick="selectAllMuscles('legs')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="legs_quads" class="mr-2 legs-muscle">
+                                    <span>Quadriceps</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="legs_hamstrings" class="mr-2 legs-muscle">
+                                    <span>Hamstrings</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="legs_glutes" class="mr-2 legs-muscle">
+                                    <span>Glutes</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="legs_calves" class="mr-2 legs-muscle">
+                                    <span>Calves</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Core & Others -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Core & Others</h4>
+                                <button type="button" onclick="selectAllMuscles('core')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="core_abs" class="mr-2 core-muscle">
+                                    <span>Abs</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="core_obliques" class="mr-2 core-muscle">
+                                    <span>Obliques</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="forearms" class="mr-2 core-muscle">
+                                    <span>Forearms</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="muscles" value="cardio" class="mr-2 core-muscle">
+                                    <span>Cardio</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200 font-medium">Continue to Profile Setup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Setup Page -->
+    <div id="profilePage" class="container mx-auto px-6 py-12 pt-32 hidden">
+        <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Complete Your Profile</h2>
+            
+            <form id="profileForm" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <select id="profileGender" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Age</label>
+                        <input type="number" id="profileAge" min="16" max="80" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
+                        <input type="number" id="profileHeight" min="140" max="220" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Weight (kg)</label>
+                        <input type="number" id="profileWeight" min="40" max="200" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fitness Goal</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                            <input type="radio" name="goal" value="lose_weight" class="mr-3" required>
+                            <div>
+                                <div class="font-medium">Lose Weight</div>
+                                <div class="text-sm text-gray-500">Burn fat & get lean</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                            <input type="radio" name="goal" value="gain_muscle" class="mr-3" required>
+                            <div>
+                                <div class="font-medium">Gain Muscle</div>
+                                <div class="text-sm text-gray-500">Build strength & size</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50">
+                            <input type="radio" name="goal" value="maintain" class="mr-3" required>
+                            <div>
+                                <div class="font-medium">Maintain</div>
+                                <div class="text-sm text-gray-500">Stay fit & healthy</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Training Days Per Week</label>
+                    <select id="trainingDays" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Select Days</option>
+                        <option value="3">3 Days</option>
+                        <option value="4">4 Days</option>
+                        <option value="5">5 Days</option>
+                        <option value="6">6 Days</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-200 font-medium">Generate My Workout Plan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="mainApp" class="hidden">
+        <!-- Navigation Sidebar -->
+        <div class="fixed left-0 top-20 h-full w-64 bg-white dark:bg-gray-800 shadow-lg z-40 transition-colors duration-300">
+            <nav class="p-6">
+                <div class="space-y-4">
+                    <button id="agendaNav" class="w-full flex items-center px-4 py-3 text-left rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-medium">
+                        <span class="mr-3">📅</span>
+                        Workout Agenda
+                    </button>
+                    <button id="dietNav" class="w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="mr-3">🍎</span>
+                        Food Diet Plan
+                    </button>
+                    <button id="socialNav" class="w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="mr-3">👥</span>
+                        Social Page
+                    </button>
+                    <button id="recordsNav" class="w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="mr-3">🏆</span>
+                        Personal Records
+                    </button>
+                    <button id="settingsNav" class="w-full flex items-center px-4 py-3 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                        <span class="mr-3">⚙️</span>
+                        Settings
+                    </button>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="ml-64 min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300 pt-20">
+            <!-- Workout Agenda Page -->
+            <div id="agendaPage" class="p-8">
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 transition-colors duration-300">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 dark:text-white">Your Workout Agenda</h2>
+                            <div class="flex items-center space-x-4">
+                                <button id="addPersonalWorkoutBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center">
+                                    <span class="mr-2">➕</span>
+                                    Add Personal Workout
+                                </button>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">
+                                    Week of <span id="currentWeek"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="workoutPlan" class="space-y-6">
+                            <!-- Workout plan will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food Diet Page -->
+            <div id="dietPage" class="p-8 hidden">
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 transition-colors duration-300">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 dark:text-white">Your Personalized Diet Plan</h2>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Goal: <span id="dietGoal" class="font-semibold"></span>
+                            </div>
+                        </div>
+
+                        <div id="dietPlan" class="space-y-6">
+                            <!-- Diet plan will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Page -->
+            <div id="socialPage" class="p-8 hidden">
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 transition-colors duration-300">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 dark:text-white">Community Workouts</h2>
+                            <button id="shareWorkoutBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center">
+                                <span class="mr-2">📤</span>
+                                Share Today's Workout
+                            </button>
+                        </div>
+
+                        <div id="socialFeed" class="space-y-6">
+                            <!-- Social feed will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Records Page -->
+            <div id="recordsPage" class="p-8 hidden">
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 transition-colors duration-300">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 dark:text-white">Personal Records</h2>
+                            <button id="addRecordBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 flex items-center">
+                                <span class="mr-2">🏆</span>
+                                Add New Record
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                            <!-- Record Categories -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl p-6">
+                                <h3 class="text-xl font-bold text-blue-800 dark:text-blue-200 mb-2">💪 Strength Records</h3>
+                                <p class="text-blue-600 dark:text-blue-300 text-sm">Track your maximum lifts and strength achievements</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-xl p-6">
+                                <h3 class="text-xl font-bold text-green-800 dark:text-green-200 mb-2">🏃 Cardio Records</h3>
+                                <p class="text-green-600 dark:text-green-300 text-sm">Log your best running, cycling, and endurance times</p>
+                            </div>
+                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 rounded-xl p-6">
+                                <h3 class="text-xl font-bold text-purple-800 dark:text-purple-200 mb-2">📊 Body Metrics</h3>
+                                <p class="text-purple-600 dark:text-purple-300 text-sm">Monitor weight, body fat, and measurement changes</p>
+                            </div>
+                        </div>
+
+                        <div id="personalRecords" class="space-y-6">
+                            <!-- Personal records will be displayed here -->
+                        </div>
+
+                        <div class="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <span class="text-yellow-600 dark:text-yellow-400 mr-2">👨‍🏫</span>
+                                <h4 class="font-semibold text-yellow-800 dark:text-yellow-200">Admin Access</h4>
+                            </div>
+                            <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                Your personal records are shared with gym staff to help them monitor your progress and provide better guidance. 
+                                This helps trainers track your improvements and adjust your workout plans accordingly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="p-8 hidden">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 transition-colors duration-300">
+                        <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-8">Settings</h2>
+                        
+                        <div class="space-y-8">
+                            <!-- Appearance Settings -->
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-8">
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Appearance</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label class="text-gray-700 dark:text-gray-300 font-medium">Dark Mode</label>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">Switch between light and dark themes</p>
+                                        </div>
+                                        <button id="darkModeToggle" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-blue-600 transition-colors">
+                                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform dark:translate-x-6"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Workout Settings -->
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-8">
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Workout Settings</h3>
+                                <div class="space-y-4">
+                                    <button id="editRoutineBtn" class="w-full flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors">
+                                        <div class="flex items-center">
+                                            <span class="mr-3">✏️</span>
+                                            <div class="text-left">
+                                                <div class="font-medium text-gray-800 dark:text-white">Edit Routine</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Modify your workout plan</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-gray-400">→</span>
+                                    </button>
+                                    
+                                    <button id="shuffleRoutineBtn" class="w-full flex items-center justify-between p-4 bg-green-50 dark:bg-green-900 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors">
+                                        <div class="flex items-center">
+                                            <span class="mr-3">🔀</span>
+                                            <div class="text-left">
+                                                <div class="font-medium text-gray-800 dark:text-white">Shuffle Days</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Randomize your workout schedule</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-gray-400">→</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Notifications Settings -->
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-8">
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Notifications</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label class="text-gray-700 dark:text-gray-300 font-medium">Workout Reminders</label>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">Get notified about your scheduled workouts</p>
+                                        </div>
+                                        <button id="workoutNotifications" class="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600 transition-colors">
+                                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label class="text-gray-700 dark:text-gray-300 font-medium">Meal Reminders</label>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">Get reminded about your meal times</p>
+                                        </div>
+                                        <button id="mealNotifications" class="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600 transition-colors">
+                                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Support Settings -->
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-8">
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Support</h3>
+                                <div class="space-y-4">
+                                    <button id="contactStaffBtn" class="w-full flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800 transition-colors">
+                                        <div class="flex items-center">
+                                            <span class="mr-3">💬</span>
+                                            <div class="text-left">
+                                                <div class="font-medium text-gray-800 dark:text-white">Contact Staff</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Get help from fitness experts</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-gray-400">→</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Diet & Allergies Settings -->
+                            <div class="border-b border-gray-200 dark:border-gray-700 pb-8">
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Diet & Allergies</h3>
+                                <div class="space-y-4">
+                                    <button id="dietAllergiesBtn" class="w-full flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-800 transition-colors">
+                                        <div class="flex items-center">
+                                            <span class="mr-3">🚫</span>
+                                            <div class="text-left">
+                                                <div class="font-medium text-gray-800 dark:text-white">Diet Allergies & Preferences</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Manage food allergies and dietary preferences</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-gray-400">→</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Account Settings -->
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">Account</h3>
+                                <div class="space-y-4">
+                                    <button id="logoutBtn" class="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                        <div class="flex items-center">
+                                            <span class="mr-3">🚪</span>
+                                            <div class="text-left">
+                                                <div class="font-medium text-gray-800 dark:text-white">Log Out</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Sign out of your account</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-gray-400">→</span>
+                                    </button>
+                                    
+                                    <button id="deleteAccountBtn" class="w-full flex items-center justify-between p-4 bg-red-50 dark:bg-red-900 rounded-lg hover:bg-red-100 dark:hover:bg-red-800 transition-colors">
+                                        <div class="flex items-center">
+                                            <span class="mr-3">🗑️</span>
+                                            <div class="text-left">
+                                                <div class="font-medium text-red-600 dark:text-red-400">Delete Account</div>
+                                                <div class="text-sm text-red-500 dark:text-red-500">Permanently remove your account</div>
+                                            </div>
+                                        </div>
+                                        <span class="text-red-400">→</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Personal Workout Modal -->
+    <div id="personalWorkoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Add Personal Workout</h3>
+            
+            <form id="personalWorkoutForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Day</label>
+                    <select id="personalWorkoutDay" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Select Day</option>
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Workout Name</label>
+                    <input type="text" id="personalWorkoutName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., Custom Upper Body" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Exercises (one per line)</label>
+                    <textarea id="personalWorkoutExercises" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Exercise Name - Sets x Reps&#10;e.g., Push-ups - 3 x 15&#10;Bench Press - 4 x 8&#10;Dumbbell Flyes - 3 x 12" required></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duration (minutes)</label>
+                    <input type="number" id="personalWorkoutDuration" min="15" max="180" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="60" required>
+                </div>
+            </form>
+
+            <div class="flex space-x-4 mt-6">
+                <button id="savePersonalWorkoutBtn" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200">Add Workout</button>
+                <button id="cancelPersonalWorkoutBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Workout Modal -->
+    <div id="shareWorkoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Share Today's Workout</h3>
+            
+            <form id="shareWorkoutForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Workout Description</label>
+                    <textarea id="shareWorkoutDescription" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tell the community about your workout..." required></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Exercises Completed</label>
+                    <textarea id="shareWorkoutExercises" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="List the exercises you completed..." required></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Duration (minutes)</label>
+                        <input type="number" id="shareWorkoutDuration" min="15" max="180" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="60" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Difficulty (1-10)</label>
+                        <input type="number" id="shareWorkoutDifficulty" min="1" max="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="7" required>
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex space-x-4 mt-6">
+                <button id="postWorkoutBtn" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Share Workout</button>
+                <button id="cancelShareBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Staff Modal -->
+    <div id="contactModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-center">Contact Gym Staff</h3>
+            
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6 text-sm">
+                <strong>Demo Version:</strong> This is a sample contact form. In a real app, this would send messages to gym staff.
+            </div>
+            
+            <form id="contactForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                        <option value="">Select a topic</option>
+                        <option value="workout_advice">Workout Advice</option>
+                        <option value="nutrition">Nutrition Guidance</option>
+                        <option value="form_check">Exercise Form Check</option>
+                        <option value="equipment">Equipment Questions</option>
+                        <option value="injury">Injury Prevention</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <textarea rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe your question or concern..." required></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Contact Method</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="radio" name="contact_method" value="email" class="mr-2" checked>
+                            <span>Email Response</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="contact_method" value="phone" class="mr-2">
+                            <span>Phone Call</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="contact_method" value="in_person" class="mr-2">
+                            <span>In-Person Meeting</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex space-x-4 mt-6">
+                <button id="sendMessageBtn" class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200">Send Message</button>
+                <button id="cancelContactBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diet Allergies Modal -->
+    <div id="dietAllergiesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Diet Allergies & Preferences</h3>
+            
+            <div class="space-y-6">
+                <!-- Dietary Preferences -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Dietary Preferences</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <label class="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <input type="checkbox" id="vegetarian" class="mr-3">
+                            <div>
+                                <div class="font-medium text-gray-800 dark:text-white">🥬 Vegetarian</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">No meat or fish</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <input type="checkbox" id="vegan" class="mr-3">
+                            <div>
+                                <div class="font-medium text-gray-800 dark:text-white">🌱 Vegan</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">No animal products</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <input type="checkbox" id="pescatarian" class="mr-3">
+                            <div>
+                                <div class="font-medium text-gray-800 dark:text-white">🐟 Pescatarian</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">Fish but no meat</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Food Allergies -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Food Allergies</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="nuts" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥜 Nuts</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="peanuts" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥜 Peanuts</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="dairy" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥛 Dairy</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="eggs" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥚 Eggs</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="gluten" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🌾 Gluten</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="soy" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🫘 Soy</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="shellfish" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🦐 Shellfish</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="fish" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🐟 Fish</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="sesame" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🌰 Sesame</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="sulfites" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🍷 Sulfites</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="mustard" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🌭 Mustard</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="celery" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥬 Celery</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="lupin" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🌸 Lupin</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-red-50 dark:hover:bg-red-900">
+                            <input type="checkbox" name="allergies" value="molluscs" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🐚 Molluscs</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Food Intolerances -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Food Intolerances</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900">
+                            <input type="checkbox" name="intolerances" value="lactose" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥛 Lactose</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900">
+                            <input type="checkbox" name="intolerances" value="fructose" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🍎 Fructose</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900">
+                            <input type="checkbox" name="intolerances" value="histamine" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🍅 Histamine</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900">
+                            <input type="checkbox" name="intolerances" value="fodmap" class="mr-2">
+                            <span class="text-sm text-gray-800 dark:text-white">🥦 FODMAP</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 mt-6">
+                <button id="saveDietPreferencesBtn" class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition duration-200">Update Diet Plan</button>
+                <button id="cancelDietPreferencesBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Personal Record Modal -->
+    <div id="addRecordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Add Personal Record</h3>
+            
+            <form id="addRecordForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Record Type</label>
+                    <select id="recordType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                        <option value="">Select Record Type</option>
+                        <optgroup label="💪 Strength Records">
+                            <option value="bench_press">Bench Press (kg)</option>
+                            <option value="squat">Squat (kg)</option>
+                            <option value="deadlift">Deadlift (kg)</option>
+                            <option value="overhead_press">Overhead Press (kg)</option>
+                            <option value="pull_ups">Pull-ups (reps)</option>
+                            <option value="push_ups">Push-ups (reps)</option>
+                        </optgroup>
+                        <optgroup label="🏃 Cardio Records">
+                            <option value="5k_run">5K Run Time</option>
+                            <option value="10k_run">10K Run Time</option>
+                            <option value="marathon">Marathon Time</option>
+                            <option value="cycling_distance">Cycling Distance (km)</option>
+                            <option value="rowing_time">Rowing 2000m Time</option>
+                        </optgroup>
+                        <optgroup label="📊 Body Metrics">
+                            <option value="weight">Weight (kg)</option>
+                            <option value="body_fat">Body Fat (%)</option>
+                            <option value="muscle_mass">Muscle Mass (kg)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Value</label>
+                        <input type="text" id="recordValue" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g., 100 or 25:30" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Date</label>
+                        <input type="date" id="recordDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Notes (Optional)</label>
+                    <textarea id="recordNotes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Any additional notes about this record..."></textarea>
+                </div>
+            </form>
+
+            <div class="flex space-x-4 mt-6">
+                <button id="saveRecordBtn" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200">Save Record</button>
+                <button id="cancelRecordBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Routine Modal -->
+    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 max-h-96 overflow-y-auto">
+            <h3 class="text-2xl font-bold mb-6">Edit Your Routine</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Training Days Per Week</label>
+                    <select id="editTrainingDays" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="3">3 Days</option>
+                        <option value="4">4 Days</option>
+                        <option value="5">5 Days</option>
+                        <option value="6">6 Days</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-4">Focus Muscle Groups</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        <!-- Chest -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Chest</h4>
+                                <button type="button" onclick="selectAllEditMuscles('chest')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="chest_upper" class="mr-2 edit-chest-muscle">
+                                    <span>Upper Chest</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="chest_middle" class="mr-2 edit-chest-muscle">
+                                    <span>Middle Chest</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="chest_lower" class="mr-2 edit-chest-muscle">
+                                    <span>Lower Chest</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Back -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Back</h4>
+                                <button type="button" onclick="selectAllEditMuscles('back')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="back_lats" class="mr-2 edit-back-muscle">
+                                    <span>Lats</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="back_rhomboids" class="mr-2 edit-back-muscle">
+                                    <span>Rhomboids</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="back_traps" class="mr-2 edit-back-muscle">
+                                    <span>Traps</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="back_lower" class="mr-2 edit-back-muscle">
+                                    <span>Lower Back</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Shoulders -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Shoulders</h4>
+                                <button type="button" onclick="selectAllEditMuscles('shoulders')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="shoulders_anterior" class="mr-2 edit-shoulders-muscle">
+                                    <span>Anterior Delt</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="shoulders_medial" class="mr-2 edit-shoulders-muscle">
+                                    <span>Medial Delt</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="shoulders_posterior" class="mr-2 edit-shoulders-muscle">
+                                    <span>Posterior Delt</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Arms -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Arms</h4>
+                                <button type="button" onclick="selectAllEditMuscles('arms')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="biceps_long" class="mr-2 edit-arms-muscle">
+                                    <span>Biceps Long Head</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="biceps_short" class="mr-2 edit-arms-muscle">
+                                    <span>Biceps Short Head</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="triceps_long" class="mr-2 edit-arms-muscle">
+                                    <span>Triceps Long Head</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="triceps_lateral" class="mr-2 edit-arms-muscle">
+                                    <span>Triceps Lateral</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="triceps_medial" class="mr-2 edit-arms-muscle">
+                                    <span>Triceps Medial</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Legs -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Legs</h4>
+                                <button type="button" onclick="selectAllEditMuscles('legs')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="legs_quads" class="mr-2 edit-legs-muscle">
+                                    <span>Quadriceps</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="legs_hamstrings" class="mr-2 edit-legs-muscle">
+                                    <span>Hamstrings</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="legs_glutes" class="mr-2 edit-legs-muscle">
+                                    <span>Glutes</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="legs_calves" class="mr-2 edit-legs-muscle">
+                                    <span>Calves</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Core & Others -->
+                        <div class="border border-gray-300 rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Core & Others</h4>
+                                <button type="button" onclick="selectAllEditMuscles('core')" class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                                    Select All
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="core_abs" class="mr-2 edit-core-muscle">
+                                    <span>Abs</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="core_obliques" class="mr-2 edit-core-muscle">
+                                    <span>Obliques</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="forearms" class="mr-2 edit-core-muscle">
+                                    <span>Forearms</span>
+                                </label>
+                                <label class="flex items-center text-sm">
+                                    <input type="checkbox" name="editMuscles" value="cardio" class="mr-2 edit-core-muscle">
+                                    <span>Cardio</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 mt-6">
+                <button id="saveChangesBtn" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200">Save Changes</button>
+                <button id="cancelEditBtn" class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentWorkoutPlan = null;
+        let currentDietPlan = null;
+        let isDarkMode = false;
+        let socialPosts = [];
+        let personalWorkouts = [];
+        let personalRecords = [];
+        let dietPreferences = {
+            allergies: [],
+            intolerances: [],
+            vegetarian: false,
+            vegan: false,
+            pescatarian: false
+        };
+
+        // Database simulation using localStorage
+        const DB = {
+            save: function(key, data) {
+                try {
+                    localStorage.setItem(`fitpro_${key}`, JSON.stringify(data));
+                    return true;
+                } catch (e) {
+                    console.error('Failed to save to database:', e);
+                    return false;
+                }
+            },
+            
+            load: function(key) {
+                try {
+                    const data = localStorage.getItem(`fitpro_${key}`);
+                    return data ? JSON.parse(data) : null;
+                } catch (e) {
+                    console.error('Failed to load from database:', e);
+                    return null;
+                }
+            },
+            
+            delete: function(key) {
+                try {
+                    localStorage.removeItem(`fitpro_${key}`);
+                    return true;
+                } catch (e) {
+                    console.error('Failed to delete from database:', e);
+                    return false;
+                }
+            },
+            
+            exists: function(key) {
+                return localStorage.getItem(`fitpro_${key}`) !== null;
+            }
+        };
+
+        // Save user session
+        function saveUserSession() {
+            if (currentUser) {
+                const sessionData = {
+                    user: currentUser,
+                    workoutPlan: currentWorkoutPlan,
+                    dietPlan: currentDietPlan,
+                    personalWorkouts: personalWorkouts,
+                    personalRecords: personalRecords,
+                    dietPreferences: dietPreferences,
+                    socialPosts: socialPosts.filter(post => post.user === (currentUser.email?.split('@')[0] || 'You')),
+                    lastLogin: new Date().toISOString()
+                };
+                DB.save(`user_${currentUser.email}`, sessionData);
+            }
+        }
+
+        // Load user session
+        function loadUserSession(email) {
+            const sessionData = DB.load(`user_${email}`);
+            if (sessionData) {
+                currentUser = sessionData.user;
+                currentWorkoutPlan = sessionData.workoutPlan;
+                currentDietPlan = sessionData.dietPlan;
+                personalWorkouts = sessionData.personalWorkouts || [];
+                personalRecords = sessionData.personalRecords || [];
+                dietPreferences = sessionData.dietPreferences || {
+                    allergies: [],
+                    intolerances: [],
+                    vegetarian: false,
+                    vegan: false,
+                    pescatarian: false
+                };
+                
+                // Merge user's posts with global social feed
+                const userPosts = sessionData.socialPosts || [];
+                initializeSocialFeed();
+                userPosts.forEach(post => {
+                    const existingPost = socialPosts.find(p => p.id === post.id);
+                    if (!existingPost) {
+                        socialPosts.unshift(post);
+                    }
+                });
+                
+                return true;
+            }
+            return false;
+        }
+
+        // Check if user exists in database
+        function userExists(email) {
+            return DB.exists(`user_${email}`);
+        }
+
+        // Calculate personalized calories based on user profile
+        function calculateCalories(profile) {
+            const { gender, age, height, weight, goal } = profile;
+            
+            // Calculate BMR using Mifflin-St Jeor Equation
+            let bmr;
+            if (gender === 'male') {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+            } else {
+                bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            }
+            
+            // Apply activity factor (moderate activity for gym-goers)
+            const tdee = bmr * 1.55;
+            
+            // Adjust based on goal
+            let calories;
+            switch (goal) {
+                case 'lose_weight':
+                    calories = Math.round(tdee - 500); // 500 calorie deficit
+                    break;
+                case 'gain_muscle':
+                    calories = Math.round(tdee + 300); // 300 calorie surplus
+                    break;
+                case 'maintain':
+                default:
+                    calories = Math.round(tdee);
+                    break;
+            }
+            
+            return {
+                bmr: Math.round(bmr),
+                tdee: Math.round(tdee),
+                targetCalories: calories
+            };
+        }
+
+        // Muscle group SVG images
+        const muscleImages = {
+            chest: `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <circle cx="50" cy="40" r="25" fill="#ff6b6b" opacity="0.8"/>
+                <circle cx="35" cy="35" r="12" fill="#ff5252" opacity="0.9"/>
+                <circle cx="65" cy="35" r="12" fill="#ff5252" opacity="0.9"/>
+                <rect x="40" y="50" width="20" height="15" rx="3" fill="#ff4444"/>
+            </svg>`,
+            back: `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <ellipse cx="50" cy="45" rx="20" ry="30" fill="#4caf50" opacity="0.8"/>
+                <rect x="35" y="25" width="30" height="40" rx="8" fill="#43a047" opacity="0.9"/>
+                <circle cx="50" cy="20" r="8" fill="#388e3c"/>
+            </svg>`,
+            shoulders: `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <circle cx="25" cy="35" r="15" fill="#ffc107" opacity="0.8"/>
+                <circle cx="75" cy="35" r="15" fill="#ffc107" opacity="0.8"/>
+                <rect x="40" y="20" width="20" height="25" rx="5" fill="#ffb300" opacity="0.9"/>
+            </svg>`,
+            arms: `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <ellipse cx="25" cy="50" rx="8" ry="25" fill="#9c27b0" opacity="0.8"/>
+                <ellipse cx="75" cy="50" rx="8" ry="25" fill="#9c27b0" opacity="0.8"/>
+                <circle cx="25" cy="35" r="6" fill="#8e24aa"/>
+                <circle cx="75" cy="35" r="6" fill="#8e24aa"/>
+            </svg>`,
+            legs: `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <ellipse cx="35" cy="60" rx="12" ry="35" fill="#2196f3" opacity="0.8"/>
+                <ellipse cx="65" cy="60" rx="12" ry="35" fill="#2196f3" opacity="0.8"/>
+                <rect x="30" y="25" width="40" height="20" rx="8" fill="#1976d2" opacity="0.9"/>
+            </svg>`,
+            core: `<svg viewBox="0 0 100 100" class="w-full h-full">
+                <ellipse cx="50" cy="50" rx="18" ry="25" fill="#ff9800" opacity="0.8"/>
+                <rect x="35" y="35" width="30" height="30" rx="8" fill="#f57c00" opacity="0.9"/>
+                <circle cx="50" cy="40" r="5" fill="#ef6c00"/>
+            </svg>`
+        };
+
+        // Alternative meals for dietary restrictions
+        const alternativeMeals = {
+            vegetarian: {
+                breakfast: [
+                    { name: "Quinoa Breakfast Bowl", calories: 320, description: "Quinoa with almond milk, berries, and nuts", protein: "12g", carbs: "45g", fat: "10g" },
+                    { name: "Avocado Toast", calories: 350, description: "Whole grain toast with avocado and hemp seeds", protein: "12g", carbs: "35g", fat: "18g" },
+                    { name: "Chia Pudding", calories: 280, description: "Chia seeds with coconut milk and fruit", protein: "8g", carbs: "25g", fat: "15g" }
+                ],
+                lunch: [
+                    { name: "Lentil Buddha Bowl", calories: 400, description: "Lentils with quinoa, roasted vegetables, and tahini", protein: "18g", carbs: "50g", fat: "12g" },
+                    { name: "Chickpea Salad Wrap", calories: 380, description: "Chickpea salad with vegetables in whole wheat wrap", protein: "16g", carbs: "45g", fat: "14g" },
+                    { name: "Vegetable Curry", calories: 350, description: "Mixed vegetable curry with brown rice", protein: "12g", carbs: "55g", fat: "10g" }
+                ],
+                dinner: [
+                    { name: "Stuffed Bell Peppers", calories: 420, description: "Bell peppers stuffed with quinoa and black beans", protein: "16g", carbs: "60g", fat: "12g" },
+                    { name: "Eggplant Parmesan", calories: 450, description: "Baked eggplant with marinara and cheese", protein: "18g", carbs: "35g", fat: "25g" },
+                    { name: "Mushroom Risotto", calories: 400, description: "Creamy mushroom risotto with nutritional yeast", protein: "14g", carbs: "65g", fat: "10g" }
+                ]
+            },
+            vegan: {
+                breakfast: [
+                    { name: "Oat Smoothie Bowl", calories: 300, description: "Oats blended with plant milk, topped with fruits", protein: "10g", carbs: "50g", fat: "8g" },
+                    { name: "Tofu Scramble", calories: 280, description: "Scrambled tofu with vegetables and nutritional yeast", protein: "18g", carbs: "15g", fat: "15g" },
+                    { name: "Acai Bowl", calories: 320, description: "Acai with granola, coconut, and fresh berries", protein: "8g", carbs: "55g", fat: "10g" }
+                ],
+                lunch: [
+                    { name: "Tempeh Stir-fry", calories: 380, description: "Tempeh with vegetables and brown rice", protein: "20g", carbs: "45g", fat: "12g" },
+                    { name: "Hummus Power Bowl", calories: 400, description: "Hummus with quinoa, vegetables, and tahini", protein: "16g", carbs: "50g", fat: "15g" },
+                    { name: "Black Bean Tacos", calories: 350, description: "Black beans with avocado in corn tortillas", protein: "14g", carbs: "50g", fat: "12g" }
+                ],
+                dinner: [
+                    { name: "Lentil Bolognese", calories: 420, description: "Lentil pasta with rich tomato sauce", protein: "18g", carbs: "65g", fat: "8g" },
+                    { name: "Cauliflower Curry", calories: 380, description: "Spiced cauliflower with coconut milk and rice", protein: "12g", carbs: "55g", fat: "14g" },
+                    { name: "Stuffed Portobello", calories: 350, description: "Portobello mushrooms stuffed with quinoa", protein: "15g", carbs: "40g", fat: "16g" }
+                ]
+            },
+            gluten_free: {
+                breakfast: [
+                    { name: "Rice Porridge", calories: 280, description: "Brown rice porridge with almond milk and berries", protein: "8g", carbs: "50g", fat: "6g" },
+                    { name: "Quinoa Pancakes", calories: 320, description: "Gluten-free quinoa flour pancakes", protein: "12g", carbs: "45g", fat: "10g" }
+                ],
+                lunch: [
+                    { name: "Rice Bowl", calories: 400, description: "Brown rice with grilled protein and vegetables", protein: "25g", carbs: "50g", fat: "12g" },
+                    { name: "Corn Tortilla Wrap", calories: 350, description: "Corn tortillas with filling of choice", protein: "20g", carbs: "40g", fat: "12g" }
+                ],
+                dinner: [
+                    { name: "Zucchini Noodles", calories: 300, description: "Spiralized zucchini with protein and sauce", protein: "25g", carbs: "20g", fat: "15g" },
+                    { name: "Cauliflower Rice Bowl", calories: 350, description: "Cauliflower rice with protein and vegetables", protein: "28g", carbs: "25g", fat: "15g" }
+                ]
+            },
+            dairy_free: {
+                breakfast: [
+                    { name: "Coconut Yogurt Bowl", calories: 280, description: "Coconut yogurt with granola and fruit", protein: "8g", carbs: "40g", fat: "12g" },
+                    { name: "Oat Milk Smoothie", calories: 300, description: "Plant-based smoothie with protein powder", protein: "20g", carbs: "35g", fat: "8g" }
+                ],
+                lunch: [
+                    { name: "Dairy-Free Pasta", calories: 380, description: "Pasta with olive oil-based sauce", protein: "15g", carbs: "60g", fat: "10g" },
+                    { name: "Coconut Curry", calories: 400, description: "Curry made with coconut milk", protein: "20g", carbs: "45g", fat: "18g" }
+                ],
+                dinner: [
+                    { name: "Grilled Protein", calories: 350, description: "Grilled meat/fish with roasted vegetables", protein: "30g", carbs: "25g", fat: "15g" },
+                    { name: "Stir-fry", calories: 380, description: "Vegetables and protein stir-fried in oil", protein: "25g", carbs: "35g", fat: "16g" }
+                ]
+            }
+        };
+
+        // Diet plans database
+        const dietPlans = {
+            lose_weight: {
+                title: "Weight Loss Diet Plan",
+                description: "Caloric deficit diet with nutrient-dense foods",
+                dailyCalories: "1,500-1,800 calories",
+                macros: "40% Carbs, 30% Protein, 30% Fat",
+                meals: {
+                    breakfast: [
+                        { name: "Greek Yogurt Bowl", calories: 250, description: "Greek yogurt with berries, almonds, and honey", protein: "20g", carbs: "25g", fat: "8g" },
+                        { name: "Veggie Omelet", calories: 280, description: "2-egg omelet with spinach, tomatoes, and feta", protein: "22g", carbs: "8g", fat: "18g" },
+                        { name: "Overnight Oats", calories: 300, description: "Oats with chia seeds, banana, and almond milk", protein: "12g", carbs: "45g", fat: "8g" }
+                    ],
+                    lunch: [
+                        { name: "Quinoa Salad", calories: 350, description: "Quinoa with grilled chicken, vegetables, and lemon dressing", protein: "25g", carbs: "35g", fat: "12g" },
+                        { name: "Turkey Wrap", calories: 320, description: "Whole wheat wrap with turkey, avocado, and veggies", protein: "28g", carbs: "30g", fat: "10g" },
+                        { name: "Lentil Soup", calories: 280, description: "Hearty lentil soup with vegetables and herbs", protein: "18g", carbs: "40g", fat: "6g" }
+                    ],
+                    dinner: [
+                        { name: "Grilled Salmon", calories: 400, description: "Salmon with roasted vegetables and sweet potato", protein: "35g", carbs: "25g", fat: "18g" },
+                        { name: "Chicken Stir-fry", calories: 350, description: "Lean chicken with mixed vegetables and brown rice", protein: "30g", carbs: "28g", fat: "12g" },
+                        { name: "Zucchini Noodles", calories: 300, description: "Spiralized zucchini with turkey meatballs and marinara", protein: "25g", carbs: "20g", fat: "15g" }
+                    ],
+                    snacks: [
+                        { name: "Apple & Almond Butter", calories: 180, description: "Sliced apple with 1 tbsp almond butter", protein: "4g", carbs: "20g", fat: "8g" },
+                        { name: "Protein Smoothie", calories: 200, description: "Protein powder with spinach and berries", protein: "25g", carbs: "15g", fat: "3g" }
+                    ]
+                }
+            },
+            gain_muscle: {
+                title: "Muscle Gain Diet Plan",
+                description: "High-protein diet for muscle building and strength",
+                dailyCalories: "2,500-3,000 calories",
+                macros: "35% Carbs, 35% Protein, 30% Fat",
+                meals: {
+                    breakfast: [
+                        { name: "Protein Pancakes", calories: 450, description: "Oat flour pancakes with protein powder and berries", protein: "35g", carbs: "40g", fat: "15g" },
+                        { name: "Breakfast Burrito", calories: 500, description: "Eggs, turkey sausage, cheese, and avocado in tortilla", protein: "30g", carbs: "35g", fat: "25g" },
+                        { name: "Power Smoothie", calories: 400, description: "Protein powder, banana, oats, and peanut butter", protein: "30g", carbs: "35g", fat: "18g" }
+                    ],
+                    lunch: [
+                        { name: "Chicken & Rice Bowl", calories: 600, description: "Grilled chicken breast with brown rice and vegetables", protein: "45g", carbs: "50g", fat: "18g" },
+                        { name: "Tuna Sandwich", calories: 550, description: "Tuna salad on whole grain bread with avocado", protein: "35g", carbs: "45g", fat: "20g" },
+                        { name: "Beef Stir-fry", calories: 580, description: "Lean beef with quinoa and mixed vegetables", protein: "40g", carbs: "45g", fat: "22g" }
+                    ],
+                    dinner: [
+                        { name: "Steak & Potatoes", calories: 700, description: "Lean steak with sweet potato and green beans", protein: "50g", carbs: "45g", fat: "25g" },
+                        { name: "Salmon Pasta", calories: 650, description: "Salmon with whole wheat pasta and vegetables", protein: "40g", carbs: "55g", fat: "22g" },
+                        { name: "Turkey Meatballs", calories: 600, description: "Turkey meatballs with quinoa and marinara sauce", protein: "45g", carbs: "40g", fat: "20g" }
+                    ],
+                    snacks: [
+                        { name: "Trail Mix", calories: 300, description: "Nuts, seeds, and dried fruit mix", protein: "12g", carbs: "25g", fat: "18g" },
+                        { name: "Cottage Cheese Bowl", calories: 250, description: "Cottage cheese with granola and berries", protein: "20g", carbs: "20g", fat: "8g" }
+                    ]
+                }
+            },
+            maintain: {
+                title: "Maintenance Diet Plan",
+                description: "Balanced nutrition for maintaining current fitness level",
+                dailyCalories: "2,000-2,300 calories",
+                macros: "40% Carbs, 25% Protein, 35% Fat",
+                meals: {
+                    breakfast: [
+                        { name: "Avocado Toast", calories: 350, description: "Whole grain toast with avocado, egg, and tomato", protein: "15g", carbs: "30g", fat: "20g" },
+                        { name: "Smoothie Bowl", calories: 320, description: "Acai bowl with granola, banana, and coconut", protein: "12g", carbs: "45g", fat: "12g" },
+                        { name: "Breakfast Quinoa", calories: 300, description: "Quinoa porridge with nuts, seeds, and fruit", protein: "12g", carbs: "40g", fat: "10g" }
+                    ],
+                    lunch: [
+                        { name: "Mediterranean Bowl", calories: 450, description: "Hummus, falafel, vegetables, and pita bread", protein: "18g", carbs: "50g", fat: "18g" },
+                        { name: "Chicken Caesar Salad", calories: 400, description: "Grilled chicken with romaine, parmesan, and dressing", protein: "30g", carbs: "15g", fat: "25g" },
+                        { name: "Veggie Burger", calories: 380, description: "Plant-based burger with sweet potato fries", protein: "20g", carbs: "45g", fat: "15g" }
+                    ],
+                    dinner: [
+                        { name: "Fish Tacos", calories: 500, description: "Grilled fish with corn tortillas and slaw", protein: "30g", carbs: "40g", fat: "22g" },
+                        { name: "Pasta Primavera", calories: 450, description: "Whole wheat pasta with seasonal vegetables", protein: "18g", carbs: "60g", fat: "15g" },
+                        { name: "Stuffed Bell Peppers", calories: 400, description: "Bell peppers stuffed with ground turkey and rice", protein: "25g", carbs: "35g", fat: "18g" }
+                    ],
+                    snacks: [
+                        { name: "Hummus & Veggies", calories: 150, description: "Hummus with carrot sticks and cucumber", protein: "6g", carbs: "18g", fat: "6g" },
+                        { name: "Greek Yogurt", calories: 120, description: "Plain Greek yogurt with honey and nuts", protein: "15g", carbs: "12g", fat: "3g" }
+                    ]
+                }
+            }
+        };
+
+        // Comprehensive exercise database with detailed muscle targeting
+        const exercises = {
+            // Chest exercises
+            chest_upper: [
+                { name: 'Incline Barbell Press', description: 'Lie on incline bench (30-45°), press barbell from upper chest to arms extended. Focus on upper pec contraction.', animation: 'shoulder-anim', icon: '🏋️', sets: '4 sets of 6-8 reps', target: 'Upper Chest' },
+                { name: 'Incline Dumbbell Press', description: 'Press dumbbells on incline bench, full range of motion. Squeeze at top, control the negative.', animation: 'shoulder-anim', icon: '💪', sets: '4 sets of 8-10 reps', target: 'Upper Chest' },
+                { name: 'Incline Dumbbell Flyes', description: 'Wide arc motion on incline bench, feel stretch in upper chest. Keep slight elbow bend throughout.', animation: 'lateral-anim', icon: '🤸', sets: '3 sets of 10-12 reps', target: 'Upper Chest' }
+            ],
+            chest_middle: [
+                { name: 'Flat Barbell Bench Press', description: 'Classic bench press, bar touches mid-chest. Drive through heels, arch back slightly.', animation: 'shoulder-anim', icon: '🏋️', sets: '4 sets of 6-8 reps', target: 'Middle Chest' },
+                { name: 'Flat Dumbbell Press', description: 'Press dumbbells from chest level, full range of motion. Control weight, focus on chest contraction.', animation: 'shoulder-anim', icon: '💪', sets: '4 sets of 8-10 reps', target: 'Middle Chest' },
+                { name: 'Push-ups', description: 'Standard push-up position, lower chest to floor. Keep body straight, push through chest.', animation: 'pushup-anim', icon: '💪', sets: '3 sets of 12-15 reps', target: 'Middle Chest' }
+            ],
+            chest_lower: [
+                { name: 'Decline Barbell Press', description: 'Press on decline bench, targets lower chest fibers. Control the weight, full range of motion.', animation: 'shoulder-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Lower Chest' },
+                { name: 'Decline Dumbbell Press', description: 'Dumbbell press on decline bench, focus on lower chest squeeze. Keep core tight.', animation: 'shoulder-anim', icon: '💪', sets: '4 sets of 8-10 reps', target: 'Lower Chest' },
+                { name: 'Dips', description: 'Lean forward on dip bars, lower body until stretch in chest. Push up through chest muscles.', animation: 'pushup-anim', icon: '🤸', sets: '3 sets of 10-12 reps', target: 'Lower Chest' }
+            ],
+
+            // Back exercises
+            back_lats: [
+                { name: 'Wide-Grip Pull-ups', description: 'Hang from bar, pull body up with wide grip. Focus on lat engagement, control descent.', animation: 'pullup-anim', icon: '🤸', sets: '4 sets of 6-8 reps', target: 'Lats' },
+                { name: 'Lat Pulldowns', description: 'Pull bar to upper chest, squeeze lats at bottom. Control the weight up, full stretch at top.', animation: 'pullup-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Lats' },
+                { name: 'T-Bar Rows', description: 'Bent over T-bar row, pull to lower chest. Keep back straight, squeeze lats and rhomboids.', animation: 'bicep-anim', icon: '💪', sets: '4 sets of 8-10 reps', target: 'Lats' },
+                { name: 'Single-Arm Dumbbell Rows', description: 'Row dumbbell to hip, squeeze lat at top. Keep core tight, full range of motion.', animation: 'bicep-anim', icon: '💪', sets: '4 sets of 10-12 reps each arm', target: 'Lats' }
+            ],
+            back_rhomboids: [
+                { name: 'Seated Cable Rows', description: 'Pull cable to lower chest, squeeze shoulder blades together. Focus on rhomboid contraction.', animation: 'bicep-anim', icon: '🏋️', sets: '4 sets of 10-12 reps', target: 'Rhomboids' },
+                { name: 'Bent-Over Barbell Rows', description: 'Row barbell to lower chest, squeeze between shoulder blades. Keep back straight.', animation: 'bicep-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Rhomboids' }
+            ],
+            back_traps: [
+                { name: 'Barbell Shrugs', description: 'Shrug shoulders up, hold contraction. Focus on upper trap engagement, control the weight.', animation: 'shoulder-anim', icon: '🏋️', sets: '4 sets of 12-15 reps', target: 'Upper Traps' },
+                { name: 'Dumbbell Shrugs', description: 'Shrug with dumbbells, full range of motion. Hold peak contraction, control descent.', animation: 'shoulder-anim', icon: '💪', sets: '4 sets of 12-15 reps', target: 'Upper Traps' }
+            ],
+            back_lower: [
+                { name: 'Deadlifts', description: 'Hip hinge movement, lift bar from floor. Keep back straight, drive through heels.', animation: 'deadlift-anim', icon: '🏋️', sets: '4 sets of 6-8 reps', target: 'Lower Back' },
+                { name: 'Hyperextensions', description: 'Extend torso on hyperextension bench. Focus on lower back and glute engagement.', animation: 'deadlift-anim', icon: '🤸', sets: '3 sets of 12-15 reps', target: 'Lower Back' }
+            ],
+
+            // Shoulder exercises
+            shoulders_anterior: [
+                { name: 'Military Press', description: 'Press barbell overhead from shoulder level. Keep core tight, full overhead extension.', animation: 'shoulder-anim', icon: '🏋️', sets: '4 sets of 6-8 reps', target: 'Front Delts' },
+                { name: 'Front Raises', description: 'Raise weight forward to shoulder height. Control the movement, focus on front delt.', animation: 'shoulder-anim', icon: '💪', sets: '3 sets of 10-12 reps', target: 'Front Delts' }
+            ],
+            shoulders_medial: [
+                { name: 'Lateral Raises', description: 'Raise weights out to sides until parallel to floor. Control the weight, focus on side delts.', animation: 'lateral-anim', icon: '🤸', sets: '4 sets of 12-15 reps', target: 'Side Delts' },
+                { name: 'Upright Rows', description: 'Pull bar up along body to chest level. Keep elbows high, squeeze side delts.', animation: 'bicep-anim', icon: '🏋️', sets: '3 sets of 10-12 reps', target: 'Side Delts' }
+            ],
+            shoulders_posterior: [
+                { name: 'Rear Delt Flyes', description: 'Bend over, fly weights out to sides. Focus on rear delt contraction, squeeze shoulder blades.', animation: 'lateral-anim', icon: '🤸', sets: '4 sets of 12-15 reps', target: 'Rear Delts' },
+                { name: 'Face Pulls', description: 'Pull cable to face level, separate hands at face. Focus on rear delts and rhomboids.', animation: 'bicep-anim', icon: '🏋️', sets: '3 sets of 12-15 reps', target: 'Rear Delts' }
+            ],
+
+            // Arm exercises
+            biceps_long: [
+                { name: 'Incline Dumbbell Curls', description: 'Curl dumbbells on incline bench, targets long head. Full stretch at bottom, squeeze at top.', animation: 'bicep-anim', icon: '💪', sets: '4 sets of 8-10 reps', target: 'Biceps Long Head' },
+                { name: 'Drag Curls', description: 'Curl bar up body, elbows back. Targets long head specifically, control the movement.', animation: 'bicep-anim', icon: '🏋️', sets: '3 sets of 10-12 reps', target: 'Biceps Long Head' }
+            ],
+            biceps_short: [
+                { name: 'Preacher Curls', description: 'Curl on preacher bench, targets short head. Full range of motion, control the negative.', animation: 'bicep-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Biceps Short Head' },
+                { name: 'Concentration Curls', description: 'Seated curl with elbow on thigh. Focus on short head contraction, slow and controlled.', animation: 'bicep-anim', icon: '💪', sets: '3 sets of 10-12 reps each arm', target: 'Biceps Short Head' }
+            ],
+            triceps_long: [
+                { name: 'Overhead Tricep Extension', description: 'Extend weight overhead, targets long head. Keep elbows stationary, full range of motion.', animation: 'shoulder-anim', icon: '💪', sets: '4 sets of 8-10 reps', target: 'Triceps Long Head' },
+                { name: 'Close-Grip Bench Press', description: 'Bench press with narrow grip. Targets all tricep heads, especially long head.', animation: 'shoulder-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Triceps Long Head' }
+            ],
+            triceps_lateral: [
+                { name: 'Tricep Pushdowns', description: 'Push cable down, squeeze triceps at bottom. Focus on lateral head, control the weight up.', animation: 'pushup-anim', icon: '🏋️', sets: '4 sets of 10-12 reps', target: 'Triceps Lateral Head' },
+                { name: 'Diamond Push-ups', description: 'Push-ups with hands in diamond shape. Targets lateral head, keep body straight.', animation: 'pushup-anim', icon: '💪', sets: '3 sets of 8-12 reps', target: 'Triceps Lateral Head' }
+            ],
+            triceps_medial: [
+                { name: 'Reverse Grip Pushdowns', description: 'Pushdown with underhand grip, targets medial head. Keep elbows at sides, squeeze at bottom.', animation: 'pushup-anim', icon: '🏋️', sets: '3 sets of 10-12 reps', target: 'Triceps Medial Head' },
+                { name: 'Tricep Dips', description: 'Dip on parallel bars or bench. Targets medial head, lower until 90° elbow bend.', animation: 'pushup-anim', icon: '🤸', sets: '3 sets of 8-12 reps', target: 'Triceps Medial Head' }
+            ],
+
+            // Leg exercises
+            legs_quads: [
+                { name: 'Back Squats', description: 'Squat with bar on upper back. Drive through heels, full depth, targets quads primarily.', animation: 'squat-anim', icon: '🦵', sets: '4 sets of 6-8 reps', target: 'Quadriceps' },
+                { name: 'Front Squats', description: 'Squat with bar on front shoulders. More quad emphasis, keep torso upright.', animation: 'squat-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Quadriceps' },
+                { name: 'Leg Press', description: 'Press weight with legs, full range of motion. Control the weight, focus on quad contraction.', animation: 'squat-anim', icon: '🏋️', sets: '4 sets of 12-15 reps', target: 'Quadriceps' },
+                { name: 'Bulgarian Split Squats', description: 'Single leg squat with rear foot elevated. Focus on front leg quad, full range of motion.', animation: 'lunge-anim', icon: '🚶', sets: '3 sets of 10-12 reps each leg', target: 'Quadriceps' }
+            ],
+            legs_hamstrings: [
+                { name: 'Romanian Deadlifts', description: 'Hip hinge with straight legs, feel hamstring stretch. Drive hips forward to return.', animation: 'deadlift-anim', icon: '🏋️', sets: '4 sets of 8-10 reps', target: 'Hamstrings' },
+                { name: 'Leg Curls', description: 'Curl heels to glutes, squeeze hamstrings. Control the weight, full range of motion.', animation: 'squat-anim', icon: '🏋️', sets: '4 sets of 10-12 reps', target: 'Hamstrings' },
+                { name: 'Good Mornings', description: 'Bend forward at hips with bar on shoulders. Feel hamstring stretch, return to upright.', animation: 'deadlift-anim', icon: '🤸', sets: '3 sets of 10-12 reps', target: 'Hamstrings' }
+            ],
+            legs_glutes: [
+                { name: 'Hip Thrusts', description: 'Thrust hips up with weight on hips. Squeeze glutes at top, control the descent.', animation: 'squat-anim', icon: '🍑', sets: '4 sets of 10-12 reps', target: 'Glutes' },
+                { name: 'Sumo Deadlifts', description: 'Wide stance deadlift, targets glutes more. Drive through heels, squeeze glutes at top.', animation: 'deadlift-anim', icon: '🏋️', sets: '4 sets of 6-8 reps', target: 'Glutes' }
+            ],
+            legs_calves: [
+                { name: 'Standing Calf Raises', description: 'Rise up on toes, squeeze calves at top. Full range of motion, control the descent.', animation: 'shoulder-anim', icon: '🦵', sets: '4 sets of 15-20 reps', target: 'Calves' },
+                { name: 'Seated Calf Raises', description: 'Calf raises in seated position. Focus on calf contraction, full range of motion.', animation: 'shoulder-anim', icon: '🪑', sets: '4 sets of 15-20 reps', target: 'Calves' }
+            ],
+
+            // Core exercises
+            core_abs: [
+                { name: 'Plank', description: 'Hold body straight from head to heels. Engage core, breathe normally, maintain position.', animation: 'plank-anim', icon: '🧘', sets: '3 sets of 45-60 seconds', target: 'Abs' },
+                { name: 'Crunches', description: 'Lift shoulders off ground, contract abs. Control the movement, focus on upper abs.', animation: 'plank-anim', icon: '💪', sets: '3 sets of 15-20 reps', target: 'Abs' },
+                { name: 'Hanging Leg Raises', description: 'Hang from bar, raise legs to 90°. Control the movement, focus on lower abs.', animation: 'pullup-anim', icon: '🤸', sets: '3 sets of 10-15 reps', target: 'Lower Abs' }
+            ],
+            core_obliques: [
+                { name: 'Russian Twists', description: 'Sit with knees bent, rotate torso side to side. Keep core engaged, control the movement.', animation: 'lateral-anim', icon: '🌪️', sets: '3 sets of 20 twists each side', target: 'Obliques' },
+                { name: 'Side Planks', description: 'Hold side plank position, engage obliques. Keep body straight, breathe normally.', animation: 'plank-anim', icon: '🧘', sets: '3 sets of 30-45 seconds each side', target: 'Obliques' }
+            ],
+
+            // Forearm exercises
+            forearms: [
+                { name: 'Wrist Curls', description: 'Curl wrists up with weight in hands. Focus on forearm flexors, control the movement.', animation: 'bicep-anim', icon: '💪', sets: '3 sets of 15-20 reps', target: 'Forearm Flexors' },
+                { name: 'Reverse Wrist Curls', description: 'Curl wrists up with overhand grip. Targets forearm extensors, control the weight.', animation: 'bicep-anim', icon: '💪', sets: '3 sets of 15-20 reps', target: 'Forearm Extensors' }
+            ],
+
+            // Cardio exercises
+            cardio: [
+                { name: 'Treadmill Running', description: 'Steady-state or interval running. Maintain good form, control breathing.', animation: 'lunge-anim', icon: '🏃', sets: '20-30 minutes', target: 'Cardiovascular System' },
+                { name: 'Rowing Machine', description: 'Full-body cardio movement. Drive with legs, pull with arms, control the return.', animation: 'bicep-anim', icon: '🚣', sets: '15-25 minutes', target: 'Full Body Cardio' }
+            ]
+        };
+
+        // Sample social posts
+        function initializeSocialFeed() {
+            socialPosts = [
+                {
+                    id: 1,
+                    user: "Mike Johnson",
+                    avatar: "👨‍💼",
+                    time: "2 hours ago",
+                    description: "Crushed my chest and triceps workout today! Feeling stronger every week 💪",
+                    exercises: "Bench Press 4x8, Incline DB Press 3x10, Dips 3x12, Close-Grip Bench 3x10, Tricep Pushdowns 3x12",
+                    duration: 75,
+                    difficulty: 8,
+                    likes: 12,
+                    liked: false,
+                    adminComment: "Great form on those dips, Mike! Try adding some pause reps to your bench press next week for extra strength gains. - Coach Sarah"
+                },
+                {
+                    id: 2,
+                    user: "Sarah Chen",
+                    avatar: "👩‍🦱",
+                    time: "4 hours ago",
+                    description: "Leg day was brutal but so worth it! My squats are getting deeper 🦵",
+                    exercises: "Back Squats 4x6, Romanian Deadlifts 4x8, Bulgarian Split Squats 3x10, Leg Curls 3x12, Calf Raises 4x15",
+                    duration: 85,
+                    difficulty: 9,
+                    likes: 18,
+                    liked: true,
+                    adminComment: "Excellent depth on those squats, Sarah! Your form has improved tremendously. Consider adding some hip thrusts for even better glute activation. - Coach Mike"
+                },
+                {
+                    id: 3,
+                    user: "Alex Rodriguez",
+                    avatar: "👨‍🎓",
+                    time: "6 hours ago",
+                    description: "Back and biceps session complete! Love the pump from those lat pulldowns 🔥",
+                    exercises: "Pull-ups 4x8, Lat Pulldowns 4x10, T-Bar Rows 4x8, Barbell Curls 3x10, Hammer Curls 3x12",
+                    duration: 70,
+                    difficulty: 7,
+                    likes: 9,
+                    liked: false,
+                    adminComment: "Nice work on the pull-ups, Alex! Your back development is really showing. Try adding some face pulls for rear delt balance. - Coach Sarah"
+                }
+            ];
+            displaySocialFeed();
+        }
+
+        // Display social feed
+        function displaySocialFeed() {
+            const container = document.getElementById('socialFeed');
+            // Reverse the order so most recent is at bottom, longest at top
+            const reversedPosts = [...socialPosts].reverse();
+            container.innerHTML = reversedPosts.map(post => `
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-2xl">
+                            ${post.avatar}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h4 class="font-bold text-gray-800 dark:text-white">${post.user}</h4>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">${post.time}</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">${post.duration} min</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">•</span>
+                                    <span class="text-sm text-gray-500 dark:text-gray-400">Difficulty: ${post.difficulty}/10</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-gray-700 dark:text-gray-300 mb-3">${post.description}</p>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-4">
+                                <h5 class="font-semibold text-gray-800 dark:text-white mb-2">Exercises:</h5>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">${post.exercises}</p>
+                            </div>
+                            
+                            ${post.adminComment ? `
+                                <div class="bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-500 p-3 mb-4">
+                                    <div class="flex items-center mb-1">
+                                        <span class="text-blue-600 dark:text-blue-400 font-semibold text-sm">👨‍🏫 Staff Comment:</span>
+                                    </div>
+                                    <p class="text-sm text-blue-800 dark:text-blue-200">${post.adminComment}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <button onclick="toggleLike(${post.id})" class="flex items-center space-x-2 text-gray-500 hover:text-red-500 transition-colors">
+                                        <span class="text-xl ${post.liked ? 'text-red-500' : ''}">${post.liked ? '❤️' : '🤍'}</span>
+                                        <span class="text-sm">${post.likes} likes</span>
+                                    </button>
+                                </div>
+                                <button onclick="copyWorkout(${post.id})" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200 text-sm flex items-center">
+                                    <span class="mr-2">📋</span>
+                                    Copy Workout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle like on social post
+        function toggleLike(postId) {
+            const post = socialPosts.find(p => p.id === postId);
+            if (post) {
+                post.liked = !post.liked;
+                post.likes += post.liked ? 1 : -1;
+                displaySocialFeed();
+                
+                // Add animation
+                const likeButton = event.target.closest('button');
+                likeButton.classList.add('like-animation');
+                setTimeout(() => likeButton.classList.remove('like-animation'), 300);
+            }
+        }
+
+        // Copy workout from social post
+        function copyWorkout(postId) {
+            const post = socialPosts.find(p => p.id === postId);
+            if (post) {
+                const confirmation = confirm(`Copy "${post.user}'s" workout to your personal workouts?\n\nThis will add their exercise routine to your weekly agenda.`);
+                if (confirmation) {
+                    const personalWorkout = {
+                        id: Date.now(),
+                        name: `${post.user}'s Workout`,
+                        exercises: post.exercises.split(', ').map(ex => ({ name: ex, sets: 'As posted', description: 'Copied from social feed' })),
+                        duration: post.duration,
+                        day: 'Unassigned'
+                    };
+                    
+                    personalWorkouts.push(personalWorkout);
+                    alert(`Workout copied successfully! You can assign it to a specific day in your workout agenda.`);
+                }
+            }
+        }
+
+        // Tab switching
+        document.getElementById('loginTab').addEventListener('click', () => {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginTab').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            document.getElementById('loginTab').classList.remove('text-gray-500');
+            document.getElementById('signupTab').classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            document.getElementById('signupTab').classList.add('text-gray-500');
+        });
+
+        document.getElementById('signupTab').addEventListener('click', () => {
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupTab').classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            document.getElementById('signupTab').classList.remove('text-gray-500');
+            document.getElementById('loginTab').classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            document.getElementById('loginTab').classList.add('text-gray-500');
+        });
+
+        // Password validation
+        document.getElementById('signupPassword').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const validation = document.getElementById('passwordValidation');
+            
+            const checks = [
+                { test: password.length >= 6 && password.length <= 12, text: '6-12 characters' },
+                { test: /[A-Z]/.test(password), text: 'One uppercase letter' },
+                { test: /[a-z]/.test(password), text: 'Lowercase letters' },
+                { test: /\d/.test(password), text: 'One number' },
+                { test: /[!@#$%^&*(),.?":{}|<>]/.test(password), text: 'One special character' }
+            ];
+            
+            validation.innerHTML = checks.map(check => 
+                `<div class="${check.test ? 'text-green-600' : 'text-red-600'}">
+                    ${check.test ? '✓' : '✗'} ${check.text}
+                </div>`
+            ).join('');
+        });
+
+        // Welcome email simulation
+        function sendWelcomeEmail(userEmail) {
+            // Simulate sending welcome email
+            setTimeout(() => {
+                alert(`Welcome email sent to ${userEmail}!\n\n📧 Email Preview:\n\nSubject: Welcome to FitPro! 🏋️‍♂️\n\nHi there!\n\nWelcome to FitPro - your personal fitness journey starts now! We're excited to help you reach your fitness goals.\n\nYour personalized workout plan is ready. Get started today and transform your fitness routine!\n\nBest regards,\nThe FitPro Team\n\n(This is a demo - no actual email was sent)`);
+            }, 1000);
+        }
+
+        // Navigation functions
+        function showMainApp() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('profilePage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            updateCurrentWeek();
+            initializeSocialFeed();
+        }
+
+        function showAppPage(pageId) {
+            const pages = ['agendaPage', 'dietPage', 'socialPage', 'settingsPage'];
+            pages.forEach(page => {
+                document.getElementById(page).classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            // Update navigation active state
+            const navButtons = ['agendaNav', 'dietNav', 'socialNav', 'settingsNav'];
+            navButtons.forEach(btn => {
+                const button = document.getElementById(btn);
+                button.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+                button.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            
+            const activeNav = pageId.replace('Page', 'Nav');
+            const activeButton = document.getElementById(activeNav);
+            activeButton.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            activeButton.classList.add('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+        }
+
+        function updateCurrentWeek() {
+            const now = new Date();
+            const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+            const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+            
+            const options = { month: 'short', day: 'numeric' };
+            const weekRange = `${startOfWeek.toLocaleDateString('en-US', options)} - ${endOfWeek.toLocaleDateString('en-US', options)}`;
+            document.getElementById('currentWeek').textContent = weekRange;
+        }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.classList.toggle('dark', isDarkMode);
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        // Initialize dark mode from localStorage
+        function initializeDarkMode() {
+            const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+            isDarkMode = savedDarkMode;
+            document.documentElement.classList.toggle('dark', isDarkMode);
+        }
+
+        // Generate diet plan
+        function generateDietPlan(goal, profile = null) {
+            const basePlan = dietPlans[goal] || dietPlans.maintain;
+            let personalizedPlan = { ...basePlan };
+            
+            // If profile is provided, calculate personalized calories
+            if (profile) {
+                const calorieData = calculateCalories(profile);
+                personalizedPlan.dailyCalories = `${calorieData.targetCalories} calories`;
+                personalizedPlan.bmr = calorieData.bmr;
+                personalizedPlan.tdee = calorieData.tdee;
+                personalizedPlan.targetCalories = calorieData.targetCalories;
+                
+                // Update description with personalized info
+                personalizedPlan.description = `${basePlan.description} - Personalized for ${profile.gender}, ${profile.age} years old`;
+            }
+            
+            currentDietPlan = personalizedPlan;
+            document.getElementById('dietGoal').textContent = personalizedPlan.title;
+            displayDietPlan();
+        }
+
+        // Display diet plan
+        function displayDietPlan() {
+            if (!currentDietPlan) return;
+            
+            const container = document.getElementById('dietPlan');
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 rounded-xl p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Daily Target</h3>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">${currentDietPlan.dailyCalories}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">BMR</h3>
+                            <p class="text-lg font-semibold text-blue-600 dark:text-blue-400">${currentDietPlan.bmr || 'N/A'} cal</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Base metabolic rate</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Macros</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${currentDietPlan.macros}</p>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">Plan Type</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">${currentDietPlan.description}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid gap-6">
+                    ${days.map((day, index) => {
+                        const weekNumber = Math.floor(index / 7) + 1;
+                        return `
+                            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">${day} - Week ${weekNumber}</h3>
+                                
+                                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                                    ${Object.entries(currentDietPlan.meals).map(([mealType, meals]) => {
+                                        const meal = meals[index % meals.length];
+                                        const mealIcons = {
+                                            breakfast: '🌅',
+                                            lunch: '☀️',
+                                            dinner: '🌙',
+                                            snacks: '🍎'
+                                        };
+                                        
+                                        return `
+                                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                                <div class="flex items-center mb-3">
+                                                    <span class="text-2xl mr-2">${mealIcons[mealType]}</span>
+                                                    <h4 class="font-semibold text-gray-800 dark:text-white capitalize">${mealType}</h4>
+                                                </div>
+                                                
+                                                <div class="space-y-2">
+                                                    <h5 class="font-medium text-gray-800 dark:text-white">${meal.name}</h5>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400">${meal.description}</p>
+                                                    
+                                                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-3">
+                                                        <span>${meal.calories} cal</span>
+                                                        <span>P: ${meal.protein}</span>
+                                                        <span>C: ${meal.carbs}</span>
+                                                        <span>F: ${meal.fat}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                
+                                <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                                    <p class="text-sm text-blue-800 dark:text-blue-200 text-center">
+                                        💡 <strong>Tip:</strong> Drink 8-10 glasses of water daily. Prepare meals in advance for better adherence to your plan.
+                                    </p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            const password = e.target.querySelector('input[type="password"]').value;
+            
+            if (email && password) {
+                // Check if user exists and load their data
+                if (loadUserSession(email)) {
+                    // Existing user - load their saved data
+                    showMainApp();
+                    displayWorkoutPlan();
+                    displayDietPlan();
+                    displayPersonalRecords();
+                    displaySocialFeed();
+                    alert(`Welcome back! Your data has been restored from ${new Date(currentUser.lastLogin || Date.now()).toLocaleDateString()}`);
+                } else {
+                    // New user logging in - create basic profile
+                    currentUser = { email: email };
+                    sendWelcomeEmail(currentUser.email);
+                    showMainApp();
+                    generateSampleWorkout();
+                    // Create demo profile for personalized diet
+                    const demoProfile = {
+                        gender: 'male',
+                        age: 28,
+                        height: 175,
+                        weight: 75,
+                        goal: 'lose_weight'
+                    };
+                    generateDietPlan('lose_weight', demoProfile);
+                    saveUserSession();
+                }
+            } else {
+                alert('Please enter both email and password');
+            }
+        });
+
+        // Signup form
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('signupPassword').value;
+            const email = e.target.querySelector('input[type="email"]').value;
+            const firstName = e.target.querySelector('input[type="text"]').value;
+            
+            // Basic validation - accept any valid inputs for demo
+            if (email && password && firstName && password.length >= 6) {
+                // Check if user already exists
+                if (userExists(email)) {
+                    alert('An account with this email already exists. Please login instead.');
+                    return;
+                }
+                
+                // Create new user
+                currentUser = { 
+                    email: email, 
+                    firstName: firstName,
+                    isNewUser: true
+                };
+                
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('muscleGroupPage').classList.remove('hidden');
+            } else {
+                alert('Please fill in all fields with a password of at least 6 characters');
+            }
+        });
+
+        // Muscle group form (first step for new users)
+        document.getElementById('muscleGroupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedMuscles = Array.from(e.target.querySelectorAll('input[name="muscles"]:checked')).map(cb => cb.value);
+            
+            if (selectedMuscles.length < 2) {
+                alert('Please select at least 2 muscle groups to focus on.');
+                return;
+            }
+            
+            // Store selected muscles temporarily
+            currentUser.selectedMuscles = selectedMuscles;
+            
+            // Move to profile page
+            document.getElementById('muscleGroupPage').classList.add('hidden');
+            document.getElementById('profilePage').classList.remove('hidden');
+        });
+
+        // Profile form (second step for new users)
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const profile = {
+                gender: document.getElementById('profileGender').value,
+                age: parseInt(document.getElementById('profileAge').value),
+                height: parseInt(document.getElementById('profileHeight').value),
+                weight: parseInt(document.getElementById('profileWeight').value),
+                goal: e.target.querySelector('input[name="goal"]:checked').value,
+                trainingDays: parseInt(document.getElementById('trainingDays').value),
+                muscles: currentUser.selectedMuscles || []
+            };
+            
+            currentUser.profile = profile;
+            currentUser.isNewUser = false; // Mark as completed setup
+            
+            generateWorkoutPlan(profile);
+            generateDietPlan(profile.goal, profile);
+            saveUserSession(); // Save to database
+            showMainApp();
+            
+            alert('Welcome to FitPro! Your personalized workout and diet plans are ready! 🎉');
+        });
+
+        // Generate sample workout for demo login
+        function generateSampleWorkout() {
+            const sampleProfile = {
+                trainingDays: 4,
+                muscles: ['chest_middle', 'back_lats', 'shoulders_medial', 'legs_quads', 'biceps_long', 'triceps_lateral']
+            };
+            generateWorkoutPlan(sampleProfile);
+        }
+
+        // Generate workout plan
+        function generateWorkoutPlan(profile) {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const workoutDays = days.slice(0, profile.trainingDays);
+            const restDays = days.slice(profile.trainingDays);
+            
+            // Distribute muscle groups across workout days
+            const muscleGroups = profile.muscles || [];
+            const workoutsPerDay = Math.ceil(muscleGroups.length / profile.trainingDays);
+            
+            currentWorkoutPlan = workoutDays.map((day, index) => {
+                const dayMuscles = muscleGroups.slice(index * workoutsPerDay, (index + 1) * workoutsPerDay);
+                const dayExercises = [];
+                
+                dayMuscles.forEach(muscle => {
+                    if (exercises[muscle]) {
+                        // Add more exercises per muscle group to reach 8 total exercises per day
+                        const exercisesPerMuscle = Math.min(exercises[muscle].length, Math.ceil(8 / dayMuscles.length));
+                        dayExercises.push(...exercises[muscle].slice(0, exercisesPerMuscle));
+                    }
+                });
+                
+                // Ensure we have exactly 8 exercises per day
+                while (dayExercises.length < 8 && dayMuscles.length > 0) {
+                    dayMuscles.forEach(muscle => {
+                        if (dayExercises.length < 8 && exercises[muscle]) {
+                            const remainingExercises = exercises[muscle].filter(ex => 
+                                !dayExercises.some(de => de.name === ex.name)
+                            );
+                            if (remainingExercises.length > 0) {
+                                dayExercises.push(remainingExercises[0]);
+                            }
+                        }
+                    });
+                    break; // Prevent infinite loop
+                }
+                
+                return {
+                    day,
+                    name: `${day} Workout`,
+                    exercises: dayExercises,
+                    duration: dayExercises.length * 18, // 15-20 minutes per exercise average (18 min)
+                    muscleGroups: dayMuscles
+                };
+            });
+            
+            // Add rest days
+            restDays.forEach(day => {
+                currentWorkoutPlan.push({
+                    day,
+                    name: 'Rest Day',
+                    exercises: [],
+                    duration: 0,
+                    muscleGroups: [],
+                    isRest: true
+                });
+            });
+            
+            // Sort by day order
+            const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            currentWorkoutPlan.sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day));
+            
+            displayWorkoutPlan();
+        }
+
+        // Get workout display name based on muscle groups
+        function getWorkoutDisplayName(workout) {
+            if (workout.isRest) return 'Rest & Recovery Day';
+            
+            const muscleGroupNames = {
+                'chest_upper': 'Upper Chest',
+                'chest_middle': 'Chest',
+                'chest_lower': 'Lower Chest',
+                'back_lats': 'Back',
+                'back_rhomboids': 'Back',
+                'back_traps': 'Traps',
+                'back_lower': 'Lower Back',
+                'shoulders_anterior': 'Front Delts',
+                'shoulders_medial': 'Shoulders',
+                'shoulders_posterior': 'Rear Delts',
+                'biceps_long': 'Biceps',
+                'biceps_short': 'Biceps',
+                'triceps_long': 'Triceps',
+                'triceps_lateral': 'Triceps',
+                'triceps_medial': 'Triceps',
+                'legs_quads': 'Legs',
+                'legs_hamstrings': 'Hamstrings',
+                'legs_glutes': 'Glutes',
+                'legs_calves': 'Calves',
+                'core_abs': 'Abs',
+                'core_obliques': 'Obliques',
+                'forearms': 'Forearms',
+                'cardio': 'Cardio'
+            };
+            
+            if (!workout.muscleGroups || workout.muscleGroups.length === 0) {
+                return workout.name;
+            }
+            
+            // Get unique muscle group names
+            const uniqueGroups = [...new Set(workout.muscleGroups.map(group => {
+                // Simplify muscle group names for display
+                if (group.includes('chest')) return 'Chest';
+                if (group.includes('back')) return 'Back';
+                if (group.includes('shoulders')) return 'Shoulders';
+                if (group.includes('biceps')) return 'Biceps';
+                if (group.includes('triceps')) return 'Triceps';
+                if (group.includes('legs')) return 'Legs';
+                if (group.includes('core')) return 'Core';
+                return muscleGroupNames[group] || group;
+            }))];
+            
+            // Create display name based on muscle groups
+            if (uniqueGroups.length === 1) {
+                return `${uniqueGroups[0]} Workout`;
+            } else if (uniqueGroups.length === 2) {
+                return `${uniqueGroups[0]} & ${uniqueGroups[1]}`;
+            } else if (uniqueGroups.length > 2) {
+                return `${uniqueGroups.slice(0, 2).join(' & ')} + More`;
+            }
+            
+            return workout.name;
+        }
+
+        // Display workout plan
+        function displayWorkoutPlan() {
+            if (!currentWorkoutPlan) return;
+            
+            const container = document.getElementById('workoutPlan');
+            container.innerHTML = currentWorkoutPlan.map(workout => {
+                if (workout.isRest) {
+                    return `
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 rounded-xl p-6 border border-green-200 dark:border-green-700">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mr-4">
+                                        <span class="text-white text-xl">😴</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800 dark:text-white">${workout.day}</h3>
+                                        <p class="text-green-600 dark:text-green-400 font-medium">Rest & Recovery Day</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Focus on:</p>
+                                    <p class="font-medium text-gray-800 dark:text-white">Sleep • Hydration • Light stretching</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-white text-xl">💪</span>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">${workout.day}</h3>
+                                    <p class="text-blue-600 dark:text-blue-400 font-medium">${getWorkoutDisplayName(workout)}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Duration</p>
+                                <p class="text-lg font-bold text-gray-800 dark:text-white">${workout.duration} min</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            ${workout.exercises.map(exercise => `
+                                <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3 exercise-animation ${exercise.animation}">
+                                            <span class="text-lg">${exercise.icon}</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800 dark:text-white text-sm">${exercise.name}</h4>
+                                            <p class="text-xs text-blue-600 dark:text-blue-400">${exercise.target}</p>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">${exercise.description}</p>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-white">${exercise.sets}</p>
+                                    <div class="mt-2 text-xs text-blue-600 dark:text-blue-400">
+                                        <p>⏱️ ~15-20 min total</p>
+                                        <p>🔄 2-3 min rest between sets</p>
+                                        <p>⏸️ 5+ min rest after exercise</p>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        ${personalWorkouts.filter(pw => pw.day === workout.day).map(pw => `
+                            <div class="mt-4 bg-green-50 dark:bg-green-900 rounded-lg p-4 border border-green-200 dark:border-green-700">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-green-800 dark:text-green-200">📝 ${pw.name}</h4>
+                                    <span class="text-sm text-green-600 dark:text-green-400">${pw.duration} min</span>
+                                </div>
+                                <div class="space-y-1">
+                                    ${pw.exercises.map(ex => `
+                                        <p class="text-sm text-green-700 dark:text-green-300">${ex.name}</p>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize personal records with sample data
+        function initializePersonalRecords() {
+            personalRecords = [
+                {
+                    id: 1,
+                    type: 'bench_press',
+                    typeName: 'Bench Press',
+                    value: '85 kg',
+                    date: '2024-01-15',
+                    notes: 'New PR! Felt strong today',
+                    category: 'strength',
+                    icon: '🏋️'
+                },
+                {
+                    id: 2,
+                    type: '5k_run',
+                    typeName: '5K Run',
+                    value: '22:45',
+                    date: '2024-01-10',
+                    notes: 'Beat my previous time by 30 seconds',
+                    category: 'cardio',
+                    icon: '🏃'
+                },
+                {
+                    id: 3,
+                    type: 'weight',
+                    typeName: 'Weight',
+                    value: '72.5 kg',
+                    date: '2024-01-12',
+                    notes: 'Down 2kg from last month',
+                    category: 'body',
+                    icon: '⚖️'
+                }
+            ];
+            displayPersonalRecords();
+        }
+
+        // Display personal records
+        function displayPersonalRecords() {
+            const container = document.getElementById('personalRecords');
+            if (personalRecords.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">🏆</div>
+                        <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">No Records Yet</h3>
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Start tracking your fitness achievements!</p>
+                        <button onclick="document.getElementById('addRecordBtn').click()" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                            Add Your First Record
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const groupedRecords = personalRecords.reduce((groups, record) => {
+                const category = record.category;
+                if (!groups[category]) groups[category] = [];
+                groups[category].push(record);
+                return groups;
+            }, {});
+
+            container.innerHTML = Object.entries(groupedRecords).map(([category, records]) => {
+                const categoryInfo = {
+                    strength: { title: '💪 Strength Records', color: 'blue' },
+                    cardio: { title: '🏃 Cardio Records', color: 'green' },
+                    body: { title: '📊 Body Metrics', color: 'purple' }
+                };
+                const info = categoryInfo[category] || { title: category, color: 'gray' };
+
+                return `
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">${info.title}</h3>
+                        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            ${records.map(record => `
+                                <div class="bg-${info.color}-50 dark:bg-${info.color}-900 rounded-lg p-4 border border-${info.color}-200 dark:border-${info.color}-700">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center">
+                                            <span class="text-2xl mr-2">${record.icon}</span>
+                                            <h4 class="font-semibold text-gray-800 dark:text-white">${record.typeName}</h4>
+                                        </div>
+                                        <button onclick="deleteRecord(${record.id})" class="text-red-500 hover:text-red-700 text-sm">🗑️</button>
+                                    </div>
+                                    <div class="text-2xl font-bold text-${info.color}-600 dark:text-${info.color}-400 mb-2">${record.value}</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">${new Date(record.date).toLocaleDateString()}</div>
+                                    ${record.notes ? `<div class="text-sm text-gray-700 dark:text-gray-300">${record.notes}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Delete personal record
+        function deleteRecord(recordId) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                personalRecords = personalRecords.filter(record => record.id !== recordId);
+                displayPersonalRecords();
+            }
+        }
+
+        // Apply dietary preferences to meal plan
+        function applyDietaryPreferences(basePlan) {
+            if (!basePlan) return basePlan;
+            
+            let modifiedPlan = JSON.parse(JSON.stringify(basePlan)); // Deep copy
+            
+            // Apply dietary preferences
+            if (dietPreferences.vegan) {
+                modifiedPlan.meals = replaceWithAlternatives(modifiedPlan.meals, 'vegan');
+                modifiedPlan.title += ' (Vegan)';
+            } else if (dietPreferences.vegetarian) {
+                modifiedPlan.meals = replaceWithAlternatives(modifiedPlan.meals, 'vegetarian');
+                modifiedPlan.title += ' (Vegetarian)';
+            }
+            
+            // Apply allergy restrictions
+            if (dietPreferences.allergies.includes('gluten')) {
+                modifiedPlan.meals = replaceWithAlternatives(modifiedPlan.meals, 'gluten_free');
+                modifiedPlan.title += ' (Gluten-Free)';
+            }
+            
+            if (dietPreferences.allergies.includes('dairy')) {
+                modifiedPlan.meals = replaceWithAlternatives(modifiedPlan.meals, 'dairy_free');
+                modifiedPlan.title += ' (Dairy-Free)';
+            }
+            
+            return modifiedPlan;
+        }
+
+        // Replace meals with alternatives based on dietary restrictions
+        function replaceWithAlternatives(meals, restriction) {
+            const alternatives = alternativeMeals[restriction];
+            if (!alternatives) return meals;
+            
+            const modifiedMeals = {};
+            
+            Object.keys(meals).forEach(mealType => {
+                if (alternatives[mealType]) {
+                    modifiedMeals[mealType] = alternatives[mealType];
+                } else {
+                    modifiedMeals[mealType] = meals[mealType];
+                }
+            });
+            
+            return modifiedMeals;
+        }
+
+        // Navigation event listeners
+        document.getElementById('agendaNav').addEventListener('click', () => showAppPage('agendaPage'));
+        document.getElementById('dietNav').addEventListener('click', () => showAppPage('dietPage'));
+        document.getElementById('socialNav').addEventListener('click', () => showAppPage('socialPage'));
+        document.getElementById('recordsNav').addEventListener('click', () => showAppPage('recordsPage'));
+        document.getElementById('settingsNav').addEventListener('click', () => showAppPage('settingsPage'));
+
+        // Settings event listeners
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+        document.getElementById('editRoutineBtn').addEventListener('click', () => {
+            // Pre-populate the edit form with current settings
+            if (currentUser && currentUser.profile) {
+                document.getElementById('editTrainingDays').value = currentUser.profile.trainingDays || 4;
+                
+                // Pre-check the current muscle groups
+                const currentMuscles = currentUser.profile.muscles || [];
+                document.querySelectorAll('input[name="editMuscles"]').forEach(checkbox => {
+                    checkbox.checked = currentMuscles.includes(checkbox.value);
+                });
+            }
+            
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('flex');
+        });
+        document.getElementById('shuffleRoutineBtn').addEventListener('click', () => {
+            if (currentWorkoutPlan) {
+                // Shuffle the workout days
+                const workouts = [...currentWorkoutPlan.filter(w => !w.isRest)];
+                const restDays = currentWorkoutPlan.filter(w => w.isRest);
+                
+                // Randomly reassign workout days
+                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                const shuffledDays = days.slice(0, workouts.length).sort(() => Math.random() - 0.5);
+                
+                workouts.forEach((workout, index) => {
+                    workout.day = shuffledDays[index];
+                });
+                
+                currentWorkoutPlan = [...workouts, ...restDays];
+                const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                currentWorkoutPlan.sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day));
+                
+                displayWorkoutPlan();
+                alert('Your workout schedule has been shuffled! 🔀');
+            }
+        });
+
+        // Modal event listeners
+        document.getElementById('contactStaffBtn').addEventListener('click', () => {
+            document.getElementById('contactModal').classList.remove('hidden');
+            document.getElementById('contactModal').classList.add('flex');
+        });
+        document.getElementById('cancelContactBtn').addEventListener('click', () => {
+            document.getElementById('contactModal').classList.add('hidden');
+            document.getElementById('contactModal').classList.remove('flex');
+        });
+        document.getElementById('sendMessageBtn').addEventListener('click', () => {
+            alert('Message sent to gym staff! 📧\n\nThey will respond within 24 hours.\n\n(This is a demo - no actual message was sent)');
+            document.getElementById('contactModal').classList.add('hidden');
+            document.getElementById('contactModal').classList.remove('flex');
+        });
+
+        // Personal workout modal
+        document.getElementById('addPersonalWorkoutBtn').addEventListener('click', () => {
+            document.getElementById('personalWorkoutModal').classList.remove('hidden');
+            document.getElementById('personalWorkoutModal').classList.add('flex');
+        });
+        document.getElementById('cancelPersonalWorkoutBtn').addEventListener('click', () => {
+            document.getElementById('personalWorkoutModal').classList.add('hidden');
+            document.getElementById('personalWorkoutModal').classList.remove('flex');
+        });
+        document.getElementById('savePersonalWorkoutBtn').addEventListener('click', () => {
+            const day = document.getElementById('personalWorkoutDay').value;
+            const name = document.getElementById('personalWorkoutName').value;
+            const exercisesText = document.getElementById('personalWorkoutExercises').value;
+            const duration = document.getElementById('personalWorkoutDuration').value;
+            
+            if (day && name && exercisesText && duration) {
+                const exercises = exercisesText.split('\n').filter(ex => ex.trim()).map(ex => ({
+                    name: ex.trim(),
+                    sets: 'Custom',
+                    description: 'Personal workout exercise'
+                }));
+                
+                const personalWorkout = {
+                    id: Date.now(),
+                    day,
+                    name,
+                    exercises,
+                    duration: parseInt(duration)
+                };
+                
+                personalWorkouts.push(personalWorkout);
+                displayWorkoutPlan();
+                autoSave(); // Save to database
+                
+                // Clear form
+                document.getElementById('personalWorkoutForm').reset();
+                document.getElementById('personalWorkoutModal').classList.add('hidden');
+                document.getElementById('personalWorkoutModal').classList.remove('flex');
+                
+                alert('Personal workout added successfully! 🎉');
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+
+        // Share workout modal
+        document.getElementById('shareWorkoutBtn').addEventListener('click', () => {
+            document.getElementById('shareWorkoutModal').classList.remove('hidden');
+            document.getElementById('shareWorkoutModal').classList.add('flex');
+        });
+        document.getElementById('cancelShareBtn').addEventListener('click', () => {
+            document.getElementById('shareWorkoutModal').classList.add('hidden');
+            document.getElementById('shareWorkoutModal').classList.remove('flex');
+        });
+        document.getElementById('postWorkoutBtn').addEventListener('click', () => {
+            const description = document.getElementById('shareWorkoutDescription').value;
+            const exercises = document.getElementById('shareWorkoutExercises').value;
+            const duration = document.getElementById('shareWorkoutDuration').value;
+            const difficulty = document.getElementById('shareWorkoutDifficulty').value;
+            
+            if (description && exercises && duration && difficulty) {
+                const newPost = {
+                    id: Date.now(),
+                    user: currentUser.email.split('@')[0] || 'You',
+                    avatar: '👤',
+                    time: 'Just now',
+                    description,
+                    exercises,
+                    duration: parseInt(duration),
+                    difficulty: parseInt(difficulty),
+                    likes: 0,
+                    liked: false,
+                    adminComment: null
+                };
+                
+                socialPosts.unshift(newPost);
+                displaySocialFeed();
+                autoSave(); // Save to database
+                
+                // Clear form
+                document.getElementById('shareWorkoutForm').reset();
+                document.getElementById('shareWorkoutModal').classList.add('hidden');
+                document.getElementById('shareWorkoutModal').classList.remove('flex');
+                
+                alert('Workout shared successfully! 🎉');
+            } else {
+                alert('Please fill in all fields');
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to log out?')) {
+                currentUser = null;
+                currentWorkoutPlan = null;
+                currentDietPlan = null;
+                personalWorkouts = [];
+                socialPosts = [];
+                
+                document.getElementById('mainApp').classList.add('hidden');
+                document.getElementById('loginPage').classList.remove('hidden');
+                
+                // Reset forms
+                document.getElementById('loginForm').reset();
+                document.getElementById('signupForm').reset();
+            }
+        });
+
+        // Delete account
+        document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+            const confirmation = prompt('Type "DELETE" to permanently delete your account:');
+            if (confirmation === 'DELETE') {
+                alert('Account deleted successfully.\n\n(This is a demo - no actual account was deleted)');
+                document.getElementById('logoutBtn').click();
+            }
+        });
+
+        // Edit routine modal
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+        });
+        document.getElementById('saveChangesBtn').addEventListener('click', () => {
+            const trainingDays = parseInt(document.getElementById('editTrainingDays').value);
+            const selectedMuscles = Array.from(document.querySelectorAll('input[name="editMuscles"]:checked')).map(cb => cb.value);
+            
+            if (selectedMuscles.length < 2) {
+                alert('Please select at least 2 muscle groups');
+                return;
+            }
+            
+            // Update the user's profile with new settings
+            if (currentUser && currentUser.profile) {
+                currentUser.profile.trainingDays = trainingDays;
+                currentUser.profile.muscles = selectedMuscles;
+                
+                // Regenerate workout plan with updated profile
+                generateWorkoutPlan(currentUser.profile);
+                
+                // Save to database
+                saveUserSession();
+            }
+            
+            document.getElementById('editModal').classList.add('hidden');
+            document.getElementById('editModal').classList.remove('flex');
+            alert('Routine updated successfully! Your changes have been saved. 🎉');
+        });
+
+        // Diet allergies modal event listeners
+        document.getElementById('dietAllergiesBtn').addEventListener('click', () => {
+            document.getElementById('dietAllergiesModal').classList.remove('hidden');
+            document.getElementById('dietAllergiesModal').classList.add('flex');
+        });
+        document.getElementById('cancelDietPreferencesBtn').addEventListener('click', () => {
+            document.getElementById('dietAllergiesModal').classList.add('hidden');
+            document.getElementById('dietAllergiesModal').classList.remove('flex');
+        });
+        document.getElementById('saveDietPreferencesBtn').addEventListener('click', () => {
+            // Save dietary preferences
+            dietPreferences.allergies = Array.from(document.querySelectorAll('input[name="allergies"]:checked')).map(cb => cb.value);
+            dietPreferences.intolerances = Array.from(document.querySelectorAll('input[name="intolerances"]:checked')).map(cb => cb.value);
+            dietPreferences.vegetarian = document.getElementById('vegetarian').checked;
+            dietPreferences.vegan = document.getElementById('vegan').checked;
+            dietPreferences.pescatarian = document.getElementById('pescatarian').checked;
+            
+            // Regenerate diet plan with new preferences
+            if (currentDietPlan) {
+                const basePlan = dietPlans[currentUser?.profile?.goal || 'maintain'];
+                currentDietPlan = applyDietaryPreferences(basePlan);
+                displayDietPlan();
+            }
+            
+            document.getElementById('dietAllergiesModal').classList.add('hidden');
+            document.getElementById('dietAllergiesModal').classList.remove('flex');
+            
+            alert('Diet preferences updated! Your meal plan has been adjusted to meet your dietary needs. 🍽️');
+        });
+
+        // Personal records modal event listeners
+        document.getElementById('addRecordBtn').addEventListener('click', () => {
+            document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('addRecordModal').classList.remove('hidden');
+            document.getElementById('addRecordModal').classList.add('flex');
+        });
+        document.getElementById('cancelRecordBtn').addEventListener('click', () => {
+            document.getElementById('addRecordForm').reset();
+            document.getElementById('addRecordModal').classList.add('hidden');
+            document.getElementById('addRecordModal').classList.remove('flex');
+        });
+        document.getElementById('saveRecordBtn').addEventListener('click', () => {
+            const type = document.getElementById('recordType').value;
+            const value = document.getElementById('recordValue').value;
+            const date = document.getElementById('recordDate').value;
+            const notes = document.getElementById('recordNotes').value;
+            
+            if (type && value && date) {
+                const typeNames = {
+                    'bench_press': 'Bench Press',
+                    'squat': 'Squat',
+                    'deadlift': 'Deadlift',
+                    'overhead_press': 'Overhead Press',
+                    'pull_ups': 'Pull-ups',
+                    'push_ups': 'Push-ups',
+                    '5k_run': '5K Run',
+                    '10k_run': '10K Run',
+                    'marathon': 'Marathon',
+                    'cycling_distance': 'Cycling Distance',
+                    'rowing_time': 'Rowing 2000m',
+                    'weight': 'Weight',
+                    'body_fat': 'Body Fat',
+                    'muscle_mass': 'Muscle Mass'
+                };
+                
+                const categories = {
+                    'bench_press': 'strength', 'squat': 'strength', 'deadlift': 'strength', 'overhead_press': 'strength', 'pull_ups': 'strength', 'push_ups': 'strength',
+                    '5k_run': 'cardio', '10k_run': 'cardio', 'marathon': 'cardio', 'cycling_distance': 'cardio', 'rowing_time': 'cardio',
+                    'weight': 'body', 'body_fat': 'body', 'muscle_mass': 'body'
+                };
+                
+                const icons = {
+                    'bench_press': '🏋️', 'squat': '🏋️', 'deadlift': '🏋️', 'overhead_press': '🏋️', 'pull_ups': '🤸', 'push_ups': '💪',
+                    '5k_run': '🏃', '10k_run': '🏃', 'marathon': '🏃', 'cycling_distance': '🚴', 'rowing_time': '🚣',
+                    'weight': '⚖️', 'body_fat': '📊', 'muscle_mass': '💪'
+                };
+                
+                const newRecord = {
+                    id: Date.now(),
+                    type,
+                    typeName: typeNames[type],
+                    value,
+                    date,
+                    notes,
+                    category: categories[type],
+                    icon: icons[type]
+                };
+                
+                personalRecords.push(newRecord);
+                displayPersonalRecords();
+                autoSave(); // Save to database
+                
+                document.getElementById('addRecordForm').reset();
+                document.getElementById('addRecordModal').classList.add('hidden');
+                document.getElementById('addRecordModal').classList.remove('flex');
+                
+                alert('Personal record added successfully! 🏆\n\nYour trainers can now see this achievement and will use it to better guide your progress.');
+            } else {
+                alert('Please fill in all required fields');
+            }
+        });
+
+        // Update navigation to include records page
+        function showAppPage(pageId) {
+            const pages = ['agendaPage', 'dietPage', 'socialPage', 'recordsPage', 'settingsPage'];
+            pages.forEach(page => {
+                document.getElementById(page).classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+            
+            // Update navigation active state
+            const navButtons = ['agendaNav', 'dietNav', 'socialNav', 'recordsNav', 'settingsNav'];
+            navButtons.forEach(btn => {
+                const button = document.getElementById(btn);
+                button.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+                button.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            });
+            
+            const activeNav = pageId.replace('Page', 'Nav');
+            const activeButton = document.getElementById(activeNav);
+            activeButton.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+            activeButton.classList.add('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
+        }
+
+        // Auto-save functionality - save user data periodically and on important actions
+        function autoSave() {
+            if (currentUser && !currentUser.isNewUser) {
+                saveUserSession();
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(autoSave, 30000);
+
+        // Save on page unload
+        window.addEventListener('beforeunload', autoSave);
+
+        // Override key functions to include auto-save
+        const originalAddPersonalWorkout = function() {
+            // This will be called when personal workouts are added
+            setTimeout(autoSave, 100);
+        };
+
+        const originalAddPersonalRecord = function() {
+            // This will be called when personal records are added
+            setTimeout(autoSave, 100);
+        };
+
+        const originalShareWorkout = function() {
+            // This will be called when workouts are shared
+            setTimeout(autoSave, 100);
+        };
+
+        // Select all muscles functions
+        function selectAllMuscles(muscleGroup) {
+            const checkboxes = document.querySelectorAll(`.${muscleGroup}-muscle`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+        }
+
+        function selectAllEditMuscles(muscleGroup) {
+            const checkboxes = document.querySelectorAll(`.edit-${muscleGroup}-muscle`);
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked;
+            });
+        }
+
+        // Initialize app
+        initializeDarkMode();
+        initializePersonalRecords();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98301b2504d3cc6f',t:'MTc1ODUyNjMyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

@@ -1,0 +1,3 @@
+npm init -y
+npm install express cors body-parser lowdb bcryptjs jsonwebtoken nanoid
+node server.js
