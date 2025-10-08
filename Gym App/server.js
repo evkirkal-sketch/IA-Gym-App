@@ -341,3 +341,67 @@ app.post("/api/login", (req, res) => {
 });
 
 app.listen(3000, () => console.log("✅ Server running at http://localhost:3000"));
+// server.js
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import cors from "cors";
+
+// Create Express app
+app = express();
+app.use(cors());
+app.use(bodyParser.json());
+
+// Connect to MongoDB
+mongoose.connect("mongodb://localhost:27017/socialmedia", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.log("MongoDB connection error:", err));
+
+// Define Schemas
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+});
+
+const postSchema = new mongoose.Schema({
+  content: String,
+  createdAt: { type: Date, default: Date.now },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+});
+
+// Define Models
+const User = mongoose.model("User", userSchema);
+const Post = mongoose.model("Post", postSchema);
+
+// Routes
+
+// Create a post for a user
+app.post("/users/:id/posts", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const post = new Post({ content: req.body.content, author: user._id });
+    await post.save();
+
+    user.posts.push(post._id);
+    await user.save();
+
+    res.json(post);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get all posts
+app.get("/posts", async (req, res) => {
+  const posts = await Post.find().populate("author", "username");
+  res.json(posts);
+});
+
+// Start server
+PORT = 5000;
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

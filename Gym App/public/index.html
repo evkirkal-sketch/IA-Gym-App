@@ -3085,3 +3085,72 @@
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98301b2504d3cc6f',t:'MTc1ODUyNjMyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Social Media App</title>
+</head>
+<body>
+  <h1>Social Media App</h1>
+
+  <input type="text" id="username" placeholder="Enter username">
+  <button id="createUserBtn">Create User</button>
+
+  <br><br>
+
+  <input type="text" id="postContent" placeholder="Write a post">
+  <button id="createPostBtn">Post</button>
+
+  <ul id="postsList"></ul>
+
+  <script>
+    let currentUserId = null; // store the logged-in user ID
+
+    // Create a new user
+    document.getElementById("createUserBtn").onclick = async () => {
+      const username = document.getElementById("username").value;
+      const res = await fetch("http://localhost:5000/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username }),
+      });
+      const data = await res.json();
+      currentUserId = data._id;
+      alert(`User created with ID: ${currentUserId}`);
+    };
+
+    // Create a post for the current user
+    document.getElementById("createPostBtn").onclick = async () => {
+      if (!currentUserId) {
+        alert("Create a user first!");
+        return;
+      }
+      const content = document.getElementById("postContent").value;
+      const res = await fetch(`http://localhost:5000/users/${currentUserId}/posts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      const post = await res.json();
+      console.log("Post created:", post);
+      loadPosts();
+    };
+
+    // Load all posts
+    async function loadPosts() {
+      const res = await fetch("http://localhost:5000/posts");
+      const posts = await res.json();
+      const list = document.getElementById("postsList");
+      list.innerHTML = "";
+      posts.forEach(post => {
+        const li = document.createElement("li");
+        li.textContent = `${post.author.username}: ${post.content}`;
+        list.appendChild(li);
+      });
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
