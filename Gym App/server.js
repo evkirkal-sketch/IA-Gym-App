@@ -27,6 +27,37 @@ const db = new Low(adapter);
   await db.write();
 })();
 
+//read DB and send back to JSON
+app.get("/api/posts", async (req, res) => {
+  await db.read();
+  return res.json({ success: true, posts: db.data.posts || [] });
+});
+//enpoints creates a new posts
+app.post("/api/posts", authenticate, async (req, res) => {
+  await db.read();
+  const user = db.data.users.find(u => u.id === req.user.id);
+  if (!user) return res.status(404).json({ error: "Not found" });
+  const { description, exercises, duration, difficulty } = req.body;
+  const post = {
+    id: nanoid(),
+    user: user.username || user.email || "anon",
+    avatar: "👤",
+    time: new Date().toISOString(),
+    description: description || "",
+    exercises: exercises || "",
+    duration: parseInt(duration) || 0,
+    difficulty: parseInt(difficulty) || 0,
+    likes: 0,
+    liked: false,
+    adminComment: null
+  };
+
+  // adds the post to the start of the posts array Then, it saves it
+  db.data.posts.unshift(post);
+  await db.write();
+  return res.json({ success: true, post });
+});
+
 // Helper: authenticate middleware
 function authenticate(req, res, next) {
   const auth = req.headers.authorization;
@@ -310,98 +341,3 @@ function getExerciseDB() {
     ]
   };
 }
-const express = require("express");
-const fs = require("fs");
-const app1 = express();
-app.use(express.json());
-
-const DB_FILE = "db.json";
-
-// Ensure db exists
-if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, JSON.stringify({ users: [] }, null, 2));
-
-app.post("/api/login", (req, res) => {
-  const { username, email, password } = req.body;
-  const db = JSON.parse(fs.readFileSync(DB_FILE));
-
-  let user = db.users.find(u => u.username === username || u.email === email);
-  if (user) {
-    if (user.password === password) {
-      return res.json({ success: true, message: "Welcome back!" });
-    } else {
-      return res.json({ success: false, message: "Username or password incorrect" });
-    }
-  }
-
-  // Register new user
-  user = { username, email, password, data: {} };
-  db.users.push(user);
-  fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2));
-  res.json({ success: true, message: "User registered!" });
-});
-
-app.listen(3000, () => console.log("✅ Server running at http://localhost:3000"));
-// server.js
-import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import cors from "cors";
-
-// Create Express app
-app = express();
-app.use(cors());
-app.use(bodyParser.json());
-
-// Connect to MongoDB
-mongoose.connect("mongodb://localhost:27017/socialmedia", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("MongoDB connected"))
-.catch(err => console.log("MongoDB connection error:", err));
-
-// Define Schemas
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
-});
-
-const postSchema = new mongoose.Schema({
-  content: String,
-  createdAt: { type: Date, default: Date.now },
-  author: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-});
-
-// Define Models
-const User = mongoose.model("User", userSchema);
-const Post = mongoose.model("Post", postSchema);
-
-// Routes
-
-// Create a post for a user
-app.post("/users/:id/posts", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const post = new Post({ content: req.body.content, author: user._id });
-    await post.save();
-
-    user.posts.push(post._id);
-    await user.save();
-
-    res.json(post);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Get all posts
-app.get("/posts", async (req, res) => {
-  const posts = await Post.find().populate("author", "username");
-  res.json(posts);
-});
-
-// Start server
-PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

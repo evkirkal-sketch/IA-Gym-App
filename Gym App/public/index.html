@@ -1441,6 +1441,54 @@
             pescatarian: false
         };
 
+async function apiFetch(url, opts = {}) {
+    const token = localStorage.getItem('authToken');
+    opts.headers = opts.headers || {};
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    return fetch(url, opts);
+}
+
+async function initializeApp() {    
+    // try restore server session/profile (optional)
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        try {
+            const profileRes = await apiFetch('/api/profile');
+            if (profileRes.ok) {
+                const pj = await profileRes.json();
+                
+                if (pj.success && pj.user) {
+                    currentUser = pj.user;
+                    showMainApp();
+                    displayWorkoutPlan();
+                    displayDietPlan();
+                    displayPersonalRecords();
+                    
+                    try {
+                        const res = await apiFetch('/api/posts');
+                        if (res.ok) {
+                            const j = await res.json();
+                            if (j.success && Array.isArray(j.posts)) {
+                                socialPosts = j.posts;
+                                displaySocialFeed();
+                                return;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('fetch posts failed', e);
+                    }
+                    return;
+                }
+            }
+            localStorage.removeItem('authToken');
+            
+        } catch (e) {
+            console.warn('profile check failed', e);
+        }
+    }
+    initializeSocialFeed();
+}
+
         // Database simulation using localStorage
         const DB = {
             save: function(key, data) {
@@ -2068,29 +2116,30 @@
             document.getElementById('profilePage').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             updateCurrentWeek();
-            initializeSocialFeed();
         }
 
-        function showAppPage(pageId) {
-            const pages = ['agendaPage', 'dietPage', 'socialPage', 'settingsPage'];
-            pages.forEach(page => {
-                document.getElementById(page).classList.add('hidden');
-            });
-            document.getElementById(pageId).classList.remove('hidden');
-            
-            // Update navigation active state
-            const navButtons = ['agendaNav', 'dietNav', 'socialNav', 'settingsNav'];
-            navButtons.forEach(btn => {
-                const button = document.getElementById(btn);
-                button.classList.remove('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
-                button.classList.add('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            });
-            
-            const activeNav = pageId.replace('Page', 'Nav');
-            const activeButton = document.getElementById(activeNav);
-            activeButton.classList.remove('hover:bg-gray-100', 'dark:hover:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
-            activeButton.classList.add('bg-blue-100', 'dark:bg-blue-900', 'text-blue-700', 'dark:text-blue-300');
-        }
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (!confirm('Are you sure you want to log out?')) return;
+
+            currentUser = null;
+            currentWorkoutPlan = null;
+            currentDietPlan = null;
+            personalWorkouts = [];
+            socialPosts = [];
+
+            // remove auth token on logout so server requests stop using it
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+        });
+
+
 
         function updateCurrentWeek() {
             const now = new Date();
@@ -2221,42 +2270,56 @@
         }
 
         // Login form
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = e.target.querySelector('input[type="email"]').value;
             const password = e.target.querySelector('input[type="password"]').value;
-            
-            if (email && password) {
-                // Check if user exists and load their data
-                if (loadUserSession(email)) {
-                    // Existing user - load their saved data
-                    showMainApp();
-                    displayWorkoutPlan();
-                    displayDietPlan();
-                    displayPersonalRecords();
-                    displaySocialFeed();
-                    alert(`Welcome back! Your data has been restored from ${new Date(currentUser.lastLogin || Date.now()).toLocaleDateString()}`);
-                } else {
-                    // New user logging in - create basic profile
-                    currentUser = { email: email };
-                    sendWelcomeEmail(currentUser.email);
-                    showMainApp();
-                    generateSampleWorkout();
-                    // Create demo profile for personalized diet
-                    const demoProfile = {
-                        gender: 'male',
-                        age: 28,
-                        height: 175,
-                        weight: 75,
-                        goal: 'lose_weight'
-                    };
-                    generateDietPlan('lose_weight', demoProfile);
-                    saveUserSession();
+
+            if (!email || !password) { alert('Please enter both email and password'); return; }
+
+            try {
+                const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usernameOrEmail: email, password })
+                });
+                const j = await res.json();
+                if (res.ok && j.token) {
+                //Save auth token so apiFetch will include it on /api/posts
+                localStorage.setItem('authToken', j.token);
+                localStorage.setItem('username', j.username || '');
+                
+
+                showMainApp();
+                displayWorkoutPlan();
+                displayDietPlan();
+                displayPersonalRecords();
+                // load server posts now that we have token
+                await initializeApp();
+                return;
                 }
-            } else {
-                alert('Please enter both email and password');
+            } catch (err) {
+                // network/server error -> fall back to local demo behaviour below
             }
-        });
+
+            // Fallback: existing local/demo login behaviour
+            if (loadUserSession(email)) {
+                showMainApp();
+                displayWorkoutPlan();
+                displayDietPlan();
+                displayPersonalRecords();
+                displaySocialFeed();
+                alert(`Welcome back! Your data has been restored from ${new Date(currentUser.lastLogin || Date.now()).toLocaleDateString()}`);
+            } else {
+                currentUser = { email: email };
+                sendWelcomeEmail(currentUser.email);
+                showMainApp();
+                generateSampleWorkout();
+                const demoProfile = { gender: 'male', age: 28, height: 175, weight: 75, goal: 'lose_weight' };
+                generateDietPlan('lose_weight', demoProfile);
+                saveUserSession();
+            }
+            });
 
         // Signup form
         document.getElementById('signupForm').addEventListener('submit', function(e) {
@@ -2813,41 +2876,59 @@
             document.getElementById('shareWorkoutModal').classList.add('hidden');
             document.getElementById('shareWorkoutModal').classList.remove('flex');
         });
-        document.getElementById('postWorkoutBtn').addEventListener('click', () => {
-            const description = document.getElementById('shareWorkoutDescription').value;
-            const exercises = document.getElementById('shareWorkoutExercises').value;
-            const duration = document.getElementById('shareWorkoutDuration').value;
-            const difficulty = document.getElementById('shareWorkoutDifficulty').value;
-            
-            if (description && exercises && duration && difficulty) {
-                const newPost = {
-                    id: Date.now(),
-                    user: currentUser.email.split('@')[0] || 'You',
-                    avatar: '👤',
-                    time: 'Just now',
-                    description,
-                    exercises,
-                    duration: parseInt(duration),
-                    difficulty: parseInt(difficulty),
-                    likes: 0,
-                    liked: false,
-                    adminComment: null
-                };
-                
-                socialPosts.unshift(newPost);
-                displaySocialFeed();
-                autoSave(); // Save to database
-                
-                // Clear form
-                document.getElementById('shareWorkoutForm').reset();
-                document.getElementById('shareWorkoutModal').classList.add('hidden');
-                document.getElementById('shareWorkoutModal').classList.remove('flex');
-                
-                alert('Workout shared successfully! 🎉');
-            } else {
-                alert('Please fill in all fields');
+
+        document.getElementById('postWorkoutBtn').addEventListener('click', async () => {
+        const description = document.getElementById('shareWorkoutDescription').value;
+        const exercises = document.getElementById('shareWorkoutExercises').value;
+        const duration = document.getElementById('shareWorkoutDuration').value;
+        const difficulty = document.getElementById('shareWorkoutDifficulty').value;
+
+        if (!description || !exercises || !duration || !difficulty) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        const fallbackPost = {
+            id: Date.now(),
+            user: (currentUser && currentUser.email) ? currentUser.email.split('@')[0] : 'You',
+            avatar: '👤',
+            time: 'Just now',
+            description,
+            exercises,
+            duration: parseInt(duration, 10),
+            difficulty: parseInt(difficulty, 10)
+        };
+
+        try {
+            const res = await apiFetch('/api/posts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description, exercises, duration: parseInt(duration, 10), difficulty: parseInt(difficulty, 10) })
+            });
+
+            if (res.ok) {
+            const j = await res.json();
+            socialPosts.unshift(j.post);
+            displaySocialFeed();
+            autoSave && autoSave();
+            document.getElementById('shareWorkoutForm').reset();
+            document.getElementById('shareWorkoutModal').classList.add('hidden');
+            document.getElementById('shareWorkoutModal').classList.remove('flex');
+            alert('Workout shared and saved to server!');
+            return;
             }
+        } catch (e) {
+        }
+
+        socialPosts.unshift(fallbackPost);
+        displaySocialFeed();
+        autoSave && autoSave();
+        document.getElementById('shareWorkoutForm').reset();
+        document.getElementById('shareWorkoutModal').classList.add('hidden');
+        document.getElementById('shareWorkoutModal').classList.remove('flex');
+        alert('Workout saved locally (server unavailable).');
         });
+
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -2857,8 +2938,14 @@
                 currentDietPlan = null;
                 personalWorkouts = [];
                 socialPosts = [];
-                
                 document.getElementById('mainApp').classList.add('hidden');
+
+                localStorage.removeItem('authToken');
+    +           localStorage.removeItem('username');
+
+                document.getElementById('mainApp').classList.add('hidden');
+
+    +           
                 document.getElementById('loginPage').classList.remove('hidden');
                 
                 // Reset forms
@@ -3082,75 +3169,11 @@
         // Initialize app
         initializeDarkMode();
         initializePersonalRecords();
+
+        //posts are loaded on startup
+        initializeApp();
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98301b2504d3cc6f',t:'MTc1ODUyNjMyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Social Media App</title>
-</head>
-<body>
-  <h1>Social Media App</h1>
-
-  <input type="text" id="username" placeholder="Enter username">
-  <button id="createUserBtn">Create User</button>
-
-  <br><br>
-
-  <input type="text" id="postContent" placeholder="Write a post">
-  <button id="createPostBtn">Post</button>
-
-  <ul id="postsList"></ul>
-
-  <script>
-    let currentUserId = null; // store the logged-in user ID
-
-    // Create a new user
-    document.getElementById("createUserBtn").onclick = async () => {
-      const username = document.getElementById("username").value;
-      const res = await fetch("http://localhost:5000/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username }),
-      });
-      const data = await res.json();
-      currentUserId = data._id;
-      alert(`User created with ID: ${currentUserId}`);
-    };
-
-    // Create a post for the current user
-    document.getElementById("createPostBtn").onclick = async () => {
-      if (!currentUserId) {
-        alert("Create a user first!");
-        return;
-      }
-      const content = document.getElementById("postContent").value;
-      const res = await fetch(`http://localhost:5000/users/${currentUserId}/posts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
-      });
-      const post = await res.json();
-      console.log("Post created:", post);
-      loadPosts();
-    };
-
-    // Load all posts
-    async function loadPosts() {
-      const res = await fetch("http://localhost:5000/posts");
-      const posts = await res.json();
-      const list = document.getElementById("postsList");
-      list.innerHTML = "";
-      posts.forEach(post => {
-        const li = document.createElement("li");
-        li.textContent = `${post.author.username}: ${post.content}`;
-        list.appendChild(li);
-      });
-    }
-
-    loadPosts();
-  </script>
 </body>
 </html>
